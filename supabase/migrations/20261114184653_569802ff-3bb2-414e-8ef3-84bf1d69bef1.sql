@@ -1,0 +1,1 @@
+DELETE FROM public.mesaje WHERE telefon IN ('+40700000991','+40700000992'); DELETE FROM public.linii_comanda WHERE comanda_id IN (SELECT id FROM public.comenzi WHERE telefon IN ('+40700000991','+40700000992')); DELETE FROM public.comenzi WHERE telefon IN ('+40700000991','+40700000992'); DELETE FROM public.clienti WHERE telefon IN ('+40700000991','+40700000992');
