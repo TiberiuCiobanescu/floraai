@@ -219,7 +219,7 @@ export function InboxPage() {
                 onChange={(e) => setMessageType(e.target.value)}
                 aria-label="Tipul mesajelor"
               >
-                {["Toate tipurile", "Comandă nouă", "Modificare", "Întrebare de preț", "Altceva", "Completare", "Confirmare"].map((type) => (
+                {["Toate tipurile", "Comandă nouă", "Modificare", "Întrebare de preț", "Recomandare", "Altceva", "Completare", "Confirmare"].map((type) => (
                   <option key={type}>{type}</option>
                 ))}
               </select>

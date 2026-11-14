@@ -23,7 +23,7 @@ export const messageStatusLabels: Record<string, string> = {
 };
 export const messageTypeLabels: Record<string, string> = {
   comanda_noua: "Comandă nouă", modificare: "Modificare", completare: "Completare",
-  confirmare: "Confirmare", intrebare_pret: "Întrebare de preț", altceva: "Altceva",
+  confirmare: "Confirmare", intrebare_pret: "Întrebare de preț", recomandare: "Recomandare", altceva: "Altceva",
 };
 export function technicalValue(labels: Record<string, string>, value: string) {
   const match = Object.entries(labels).find(([, label]) => textEquals(label, value));
