@@ -1,6 +1,5 @@
 import { normalizeText, textEquals } from "@/lib/normalize-text";
 import { DEMO_NOW, modificationDeadline, productSummary, type Order, type OrderType, type Message } from "./data";
-import { newestMessagesFirst } from "./message-order";
 
 type StockItem = { name: string; quantity: number };
 export type OrderObservation = { kind: "deadline" | "shortage" | "unknown"; title: string; detail: string; template: string };
@@ -13,15 +12,13 @@ const aliases: Record<string, string> = {
   eustoma: "lisianthus",
 };
 
-export function orderObservations(order: Order, stock: readonly StockItem[], limits: Record<OrderType, number>, now = DEMO_NOW, messages: readonly Message[] = []): OrderObservation[] {
+export function orderObservations(order: Order, stock: readonly StockItem[], limits: Record<OrderType, number>, now = DEMO_NOW, _messages: readonly Message[] = []): OrderObservation[] {
   if (textEquals(order.status, "Livrată") || textEquals(order.status, "Executată")) return [];
   const observations: OrderObservation[] = [];
   const greeting = normalizeText(order.client) ? `Bună ziua, ${order.client}!` : "Bună ziua!";
   const delivery = new Date(`${order.date}T12:00:00`);
   const deliveryDate = Number.isFinite(delivery.getTime()) ? delivery.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" }) : "[completează data livrării]";
   const context = `Comanda #${order.id}: ${productSummary(order) || "[completează produsele]"}, pentru ${order.recipient || "[completează destinatarul]"}, cu livrare pe ${deliveryDate}, ${order.time}${normalizeText(order.address) ? `, la ${order.address}` : ""}.`;
-  const latest = newestMessagesFirst(messages.filter((message) => message.orderId === order.id))[0];
-  const request = latest && textEquals(latest.type, "Modificare") ? ` Referitor la solicitarea dumneavoastră: „${latest.text}”.` : "";
   const deadline = modificationDeadline(order, limits);
   if (Number.isFinite(deadline.getTime())) {
     const formatted = deadline.toLocaleString("ro-RO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -31,8 +28,8 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
       title: expired ? "Termenul de modificare a trecut" : "Termenul de modificare este deschis",
       detail: expired ? `Termen: ${formatted}. Verifică posibilitatea modificării înainte de a o promite clientului.` : `Modificările pot fi discutate până la ${formatted}, cu ${limits[order.type]} ore înainte de livrare.`,
       template: expired
-        ? `${greeting}\n\n${context}\n\n${request.trim() || "Referitor la modificarea comenzii dumneavoastră:"}\nTermenul de modificare a fost ${formatted} și a trecut. Trebuie să verificăm dacă mai putem realiza modificarea solicitată înainte de a o confirma. Doriți să verificăm această posibilitate?`
-        : `${greeting} ${context}${request} Termenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
+        ? `${greeting}\n\n${context}\n\nTermenul de modificare a fost ${formatted} și a trecut. Trebuie să verificăm dacă mai putem realiza modificarea solicitată înainte de a o confirma. Doriți să verificăm această posibilitate?`
+        : `${greeting} ${context} Termenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
     });
   }
   const demand = new Map<StockItem, number>();

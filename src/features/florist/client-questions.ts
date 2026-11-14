@@ -29,7 +29,7 @@ export function recommendedClientQuestions(order: Order, messages: readonly Mess
     return questions;
   }
   if (latest && textEquals(latest.type, "Modificare")) {
-    questions.push(`${greeting}\n\n${context}\n\nReferitor la solicitarea dumneavoastră: „${latest.text}”.\nVă rugăm să confirmați modificarea comenzii la ${productSummary(order)}. Restul detaliilor rămân neschimbate?`);
+    questions.push(`${greeting}\n\n${context}\n\nVă rugăm să confirmați modificarea comenzii la ${productSummary(order)}. Restul detaliilor rămân neschimbate?`);
   }
   if (textEquals(latest?.type ?? "", "Completare")) {
     questions.push("Mulțumim pentru completare! Mai sunt și alte detalii pe care doriți să le adăugați comenzii?");
