@@ -1,4 +1,8 @@
-import { forwardRef, useMemo, useState, type ReactNode } from "react";
+import { forwardRef, useMemo, useRef, useState, type ReactNode } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { prepareExtraction } from "./extraction.functions";
+import { processExtraction } from "./extraction-client";
+import { validPhone, whatsappUrl } from "./whatsapp";
 import { Link } from "@tanstack/react-router";
 import {
   Upload,
@@ -29,7 +33,15 @@ const MotionLink = motion.create(MessageLink);
 export function InboxPage() {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { messages } = useFlorist();
+  const { messages, refresh } = useFlorist();
+  const prepare = useServerFn(prepareExtraction);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const abort = useRef<AbortController | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState("");
+  const [phone, setPhone] = useState("");
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
   const [tab, setTab] = useState("Toate mesajele");
   const [search, setSearch] = useState("");
   const [channel, setChannel] = useState("Toate canalele");
@@ -51,10 +63,28 @@ export function InboxPage() {
       )),
     [messages, tab, channel, messageType, search],
   );
-  function create() {
-    if (!normalizeText(text)) return;
-    toast.error("Crearea comenzilor din mesaje nu este încă conectată. Nu s-a adăugat o comandă fictivă.");
+  async function process(textValue: string, channelValue: "WhatsApp" | "Fizic" | "Telefon") {
+    if (busy) return;
+    setBusy(true);
+    const controller = new AbortController(); abort.current = controller;
+    try {
+      const prepared = await prepare({ data: { text: textValue, channel: channelValue, phone } });
+      await refresh();
+      for (const [index, ids] of prepared.groups.entries()) {
+        if (controller.signal.aborted) break;
+        setProgress(`Procesare ${index + 1} din ${prepared.groups.length}…`);
+        await processExtraction(ids, controller.signal);
+        await refresh();
+      }
+      if (!controller.signal.aborted) {
+        toast.success(prepared.groups.length ? "Mesajele au fost procesate." : "Mesajele au fost deja importate.");
+        if (channelValue !== "WhatsApp") { setOpen(false); setText(""); setPhone(""); }
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) toast.error(error instanceof Error ? error.message : "Mesajele nu au fost procesate.");
+    } finally { await refresh(); setBusy(false); setProgress(""); abort.current = null; }
   }
+  const activeMessage = messages.find(m => m.id === selectedMessage);
   return (
     <>
       <PageHeading
@@ -63,17 +93,25 @@ export function InboxPage() {
         description="Toate mesajele clienților, într-un singur loc."
         actions={
           <>
-            <Button variant="outline" onClick={() => toast.error("Importul WhatsApp nu este încă conectat. Nu s-au adăugat mesaje.")}>
+            <input ref={fileInput} type="file" accept=".txt,text/plain" className="hidden" aria-label="Fișier chat WhatsApp" onChange={async e => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (!file) return;
+              if (file.size > 2000000) { toast.error("Fișierul este prea mare. Încarcă o conversație mai scurtă."); return; }
+              await process(await file.text(), "WhatsApp");
+            }} />
+            <Button variant="outline" disabled={busy} onClick={() => fileInput.current?.click()}>
               <Upload />
               Încarcă chat WhatsApp (.txt)
             </Button>
-            <Button onClick={() => setOpen(true)}>
+            <Button disabled={busy} onClick={() => setOpen(true)}>
               <Plus />
               Comandă fizică / telefon
             </Button>
           </>
         }
       />
+      {busy && <div className="action-notice" role="status">{progress || "Se salvează mesajele…"} <Button variant="ghost" onClick={() => abort.current?.abort()}>Oprește</Button></div>}
       <div className="stat-grid">
         {[
           {
@@ -188,8 +226,7 @@ export function InboxPage() {
             <span />
           </div>
           {filtered.map((m, i) => (
-            <MotionLink
-              orderId={m.orderId}
+            <motion.div
               key={m.id}
               {...entrance}
               transition={{ ...entrance.transition, delay: reduced ? 0 : Math.min(i, 8) * 0.05 }}
@@ -219,8 +256,8 @@ export function InboxPage() {
               <div>
                 <StatusBadge value={m.status} />
               </div>
-              <ChevronRight size={18} className="row-chevron" />
-            </MotionLink>
+              {m.orderId ? <Button variant="ghost" size="icon" asChild aria-label={`Deschide comanda ${m.orderId}`}><Link to="/comenzi/$id" params={{id:m.orderId}}><ChevronRight size={18} /></Link></Button> : <Button variant="ghost" size="icon" aria-label={`Deschide mesajul ${m.id}`} onClick={() => {setSelectedMessage(m.id);setReply(m.question ?? "");}}><ChevronRight size={18}/></Button>}
+            </motion.div>
           ))}
           {filtered.length === 0 && (
             <div className="empty-state">
@@ -248,6 +285,10 @@ export function InboxPage() {
           <DialogTitle>Comandă fizică / telefon</DialogTitle>
           <DialogDescription>Notează mesajul clientului.</DialogDescription>
           <label className="field">
+            Telefonul clientului
+            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="07… sau +40…" />
+          </label>
+          <label className="field">
             Canal
             <select
               value={source}
@@ -268,10 +309,21 @@ export function InboxPage() {
               placeholder="Ex. Un buchet de 15 trandafiri roșii, pentru mâine…"
             />
           </label>
-          <Button disabled={!normalizeText(text)} onClick={create}>
+          <Button disabled={busy || !normalizeText(text) || !validPhone(phone)} onClick={() => process(text, source)}>
             <Plus />
             Adaugă comanda
           </Button>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={Boolean(activeMessage)} onOpenChange={value => {if (!value) setSelectedMessage(null);}}>
+        <DialogContent>
+          <DialogTitle>{activeMessage?.client}</DialogTitle>
+          <DialogDescription>{activeMessage?.text}</DialogDescription>
+          <label className="field">Mesaj pentru client<textarea value={reply} rows={4} onChange={e => setReply(e.target.value)} /></label>
+          <Button variant="outline" disabled={!normalizeText(reply)} onClick={() => {
+            if (!activeMessage) return;
+            window.open(whatsappUrl(activeMessage.phone,reply),"_blank","noopener,noreferrer");
+          }}><MessageCircle/>Deschide WhatsApp</Button>
         </DialogContent>
       </Dialog>
     </>

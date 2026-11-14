@@ -28,7 +28,7 @@ function useFloristState() {
     await saveSettingsFn({ data: { stock, limits } });
     await refresh();
   }
-  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateMessage, saveSettings };
+  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateMessage, saveSettings, refresh };
 }
 type FloristValue = ReturnType<typeof useFloristState>;
 // An open preview can retain the old provider while a route receives the refreshed hook.

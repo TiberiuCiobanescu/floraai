@@ -12,6 +12,8 @@ import { useEntrance } from "./motion";
 import { clientQuestionOptions, recommendedClientQuestions } from "./client-questions";
 import { orderObservations } from "./order-observations";
 import { changeProductName } from "./order-safety";
+import { whatsappUrl } from "./whatsapp";
+import { editableMissingFields } from "./extraction-rules";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -41,6 +43,7 @@ export function OrderDetail({ id }: { id: string }) {
   const missingProduct =
     order.products.length === 0 ||
     order.products.some((p) => !normalizeText(p.name) || p.quantity < 1);
+  const extractedMissing = editableMissingFields(order);
   function change<K extends keyof Order>(key: K, value: Order[K]) {
     setDraft((prev) => (prev ? { ...prev, [key]: value } : prev));
     setNotice("");
@@ -62,7 +65,7 @@ export function OrderDetail({ id }: { id: string }) {
     return true;
   }
   async function confirm() {
-    if (missing.length || missingProduct) {
+    if (missing.length || missingProduct || extractedMissing.length) {
       setNotice("Completează câmpurile lipsă înainte de confirmare.");
       return;
     }
@@ -77,10 +80,17 @@ export function OrderDetail({ id }: { id: string }) {
       toast.error("Completează modelul de mesaj înainte de trimitere.");
       return;
     }
-    if (!(await save("Așteaptă clientul"))) return;
+    if (order.warning && !window.confirm(`${order.warning}\n\nDeschizi WhatsApp pentru această comandă?`)) return;
+    let url: string;
+    try { url = whatsappUrl(order.phone,text); } catch(error) {toast.error(error instanceof Error ? error.message : "Telefon invalid.");return;}
+    const popup = window.open("about:blank", "_blank");
+    if (!popup) {toast.error("Permite deschiderea WhatsApp în browser înainte de a continua.");return;}
+    popup.opener = null;
+    if (!(await save("Așteaptă clientul"))) {popup.close();return;}
     if (!(await updateMessage(id, "Așteaptă clientul"))) return;
-    setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
-    toast.success("Simulare: întrebarea a fost trimisă pe WhatsApp.");
+    popup.location.href = url;
+    setNotice("WhatsApp a fost deschis cu mesajul pregătit.");
+    toast.success("WhatsApp a fost deschis cu mesajul pregătit.");
   }
   return (
     <>
@@ -151,6 +161,7 @@ export function OrderDetail({ id }: { id: string }) {
               </p>
             )}
           </div>
+          {order.warning && <AlertBand tone="amber"><strong>{order.warning}</strong></AlertBand>}
           {observations.length > 0 && (
             <section className="mb-6" aria-label="Observații comandă">
               <h3 className="mb-3">Observații</h3>
@@ -186,6 +197,7 @@ export function OrderDetail({ id }: { id: string }) {
             </span>
           </div>
           <fieldset disabled={settled} className="form-grid">
+            {extractedMissing.length > 0 && <div className="field full-width missing-field" role="status">Detalii lipsă: {extractedMissing.map(f => ({data_livrare:"data livrării",adresa:"adresa",destinatar:"destinatarul",produse:"produsele",produs:"alegerea produsului"})[f] ?? f).join(", ")}</div>}
             {(
               [
                 { key: "client", label: "Client" },
@@ -379,16 +391,12 @@ export function OrderDetail({ id }: { id: string }) {
             <Button
               variant="outline"
               disabled={settled}
-              onClick={async () => {
-                if (!(await save("Așteaptă clientul"))) return;
-                if (!(await updateMessage(id, "Așteaptă clientul"))) return;
-                setNotice("Simulare: rezumatul a fost trimis spre confirmare.");
-              }}
+              onClick={() => sendQuestion(question)}
             >
               <Send />
               Trimite rezumatul spre confirmare
             </Button>
-            <Button disabled={settled} onClick={confirm}>
+            <Button disabled={settled || missing.length > 0 || missingProduct || extractedMissing.length > 0} onClick={confirm}>
               <Check />
               Marchează confirmată
             </Button>

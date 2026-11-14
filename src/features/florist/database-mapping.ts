@@ -73,9 +73,10 @@ export function mapFloristRows(rows: FloristRows) {
     id: row.id, orderId: row.comanda_id ?? "", phone: row.telefon,
     client: rows.clienti.find((client) => client.telefon === row.telefon)?.nume ?? row.telefon,
     received: row.ora, time: row.ora.slice(11, 16), text: row.text,
-    channel: row.canal === "telefon" ? "Telefon" : row.canal === "fizic" ? "Fizic" : "WhatsApp",
+    channel: textEquals(row.canal ?? "", "telefon") ? "Telefon" : textEquals(row.canal ?? "", "fizic") ? "Fizic" : "WhatsApp",
     type: messageTypeLabels[row.tip_mesaj ?? ""] ?? row.tip_mesaj ?? "Altceva",
     status: messageStatusLabels[row.status] ?? row.status,
+    question: row.intrebare_client?.startsWith("AI_ACCESS_DENIED:") ? "" : row.intrebare_client ?? "",
   }));
   return { orders, messages, limits, catalog: rows.produse,
     stock: rows.stoc.map((row) => ({ key: row.floare, name: flowerLabel(row.floare), quantity: row.cantitate_fire, threshold: row.prag_alerta })),

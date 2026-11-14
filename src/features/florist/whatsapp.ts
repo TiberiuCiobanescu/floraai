@@ -20,7 +20,7 @@ export function parseWhatsApp(value: string): IncomingMessage[] {
     const ora = `${year}-${month}-${day} ${time}:00`;
     const parsed = new Date(ora.replace(" ", "T") + "+02:00");
     if (!validPhone(telefon)) throw new Error(`Expeditorul „${telefon}” nu este un telefon valid. Exportă conversația cu numerele clienților.`);
-    if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== `${year}-${month}-${day}` && time >= "02:00") throw new Error(`Data mesajului este invalidă: ${date}, ${time}.`);
+    if (!Number.isFinite(parsed.getTime()) || new Date(parsed.getTime() + 2 * 3600000).toISOString().slice(0, 16) !== `${year}-${month}-${day}T${time}`) throw new Error(`Data mesajului este invalidă: ${date}, ${time}.`);
     messages.push({ telefon: telefon.trim(), ora, text });
   }
   if (!messages.length) throw new Error("Fișierul nu conține mesaje în formatul ZZ.LL.AAAA, HH:MM - TELEFON: TEXT.");

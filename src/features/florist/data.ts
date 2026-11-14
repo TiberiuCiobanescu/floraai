@@ -34,6 +34,7 @@ export type Message = {
   channel: "WhatsApp" | "Telefon" | "Fizic";
   type: string;
   status: string;
+  question?: string;
 };
 export const DEMO_NOW = new Date("2026-11-14T10:05:00+02:00");
 // Phone matching ignores formatting only; never normalize or rewrite the saved input.

@@ -8,7 +8,7 @@ import { textEquals } from "@/lib/normalize-text";
 import { assertOrderEditable } from "./order-safety";
 
 // Use the team's existing anon policies, never the service-role key.
-function databaseClient() {
+export function databaseClient() {
   const url = process.env["SUPABASE_URL"];
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"] ?? process.env["SUPABASE_ANON_KEY"];
   if (!url || !key) throw new Error("Conexiunea la date nu este configurată.");
@@ -22,7 +22,7 @@ function databaseClient() {
     } },
   });
 }
-async function readTable<K extends keyof FloristRows>(client: SupabaseClient<Database>, table: K): Promise<FloristRows[K]> {
+export async function readTable<K extends keyof FloristRows>(client: SupabaseClient<Database>, table: K): Promise<FloristRows[K]> {
   const rows: unknown[] = [];
   for (let offset = 0; ; offset += 1000) {
     const { data, error } = await client.from(table).select("*").range(offset, offset + 999);
