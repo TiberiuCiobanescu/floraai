@@ -9,6 +9,7 @@ import { normalizeText, textEquals } from "@/lib/normalize-text";
 import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
+import { recommendedClientQuestions } from "./client-questions";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -16,8 +17,8 @@ export function OrderDetail({ id }: { id: string }) {
   const original = orders.find((o) => o.id === id);
   const [draft, setDraft] = useState<Order | undefined>(original);
   const [notice, setNotice] = useState("");
-  const [question, setQuestion] = useState(
-    "Ne puteți trimite adresa de livrare și numele destinatarului?",
+  const [question, setQuestion] = useState(() =>
+    original ? recommendedClientQuestions(original, messages)[0] ?? "" : "",
   );
   if (!draft)
     return (
@@ -27,6 +28,7 @@ export function OrderDetail({ id }: { id: string }) {
       </>
     );
   const order = draft;
+  const recommendations = recommendedClientQuestions(order, messages);
   const message = messages.find((m) => m.orderId === id);
   const deadline = modificationDeadline(order, limits);
   const expired = deadline < DEMO_NOW;
@@ -294,6 +296,20 @@ export function OrderDetail({ id }: { id: string }) {
           </div>
           <div className="question-box">
             <h3>Întrebare pentru client</h3>
+            <div className="mb-3 flex flex-col items-start gap-2" aria-label="Întrebări recomandate">
+              <span className="text-xs text-muted-foreground">Întrebări recomandate</span>
+              {recommendations.map((recommendation) => (
+                <Button
+                  key={recommendation}
+                  variant="outline"
+                  className="h-auto max-w-full justify-start whitespace-normal text-left text-xs"
+                  onClick={() => setQuestion(recommendation)}
+                >
+                  <Plus className="shrink-0" />
+                  {recommendation}
+                </Button>
+              ))}
+            </div>
             <textarea
               aria-label="Întrebare pentru client"
               rows={2}

@@ -43,3 +43,4 @@ use the editor.
 - Keep editable demo profile fields in the shared florist provider, with explicit save/cancel in a dialog; profile editing does not imply authentication or account switching.
 - Keep florist identity edits in shared demo state, separate from the user profile; the workspace menu opens an explicit save/cancel editor without adding multiple workspaces.
 - Sort Inbox views using full received timestamps on a copied message list, so filters remain newest-first without mutating shared data.
+- Derive client-question suggestions locally from the editable order and latest linked message; selecting a suggestion only changes the editable question, never sends or confirms an order.
