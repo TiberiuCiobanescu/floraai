@@ -6,4 +6,6 @@ it("requires products, delivery date, address and recipient",()=>{expect(mandato
 it("does not require an interval",()=>{expect(mandatoryFields({...result,produse:[{nume_catalog:"P",cantitate:1}],data_livrare:"2026-11-14",adresa:"A",destinatar:"Ana"})).toEqual([]);});
 it("does not request order fields for a price question",()=>{expect(mandatoryFields({...result,tip_mesaj:"intrebare_pret",campuri_lipsa:["adresa"]})).toEqual([]);});
 it("does not request order fields for a recommendation",()=>{expect(mandatoryFields({...result,tip_mesaj:"recomandare",campuri_lipsa:["adresa"]})).toEqual([]);});
+it("does not request order fields for a cancellation",()=>{expect(mandatoryFields({...result,tip_mesaj:"anulare",campuri_lipsa:["adresa"]})).toEqual([]);});
+it("does not request order fields for an order question",()=>{expect(mandatoryFields({...result,tip_mesaj:"intrebare",campuri_lipsa:["adresa"]})).toEqual([]);});
 it("blocks a draft until the ambiguous product is resolved",()=>{expect(editableMissingFields({date:"2026-11-14",address:"A",recipient:"Ana",products:[{name:"P",quantity:1}],missingFields:["produs"]})).toEqual(["produs"]);});

@@ -1,7 +1,7 @@
 import { textEquals } from "@/lib/normalize-text";
 
 export type OrderStatus =
-  "Draft" | "Așteaptă clientul" | "De validat" | "Confirmată" | "Respinsă" | "În lucru" | "Executată" | "Livrată";
+  "Draft" | "Așteaptă clientul" | "De validat" | "Confirmată" | "Respinsă" | "Anulată" | "În lucru" | "Executată" | "Livrată";
 export type OrderType = "Buchet în oraș" | "Nuntă";
 export type Product = { id?: string; lineId?: number; name: string; quantity: number; composition?: string; extras?: string };
 export type Order = {
@@ -51,7 +51,7 @@ export function linkMessageToOrder(
 export function canMarkExecuted(status: OrderStatus) {
   return textEquals(status, "Confirmată") || textEquals(status, "În lucru");
 }
-export function modificationDeadline(order: Order, limits: Record<OrderType, number>) {
+export function modificationDeadline(order: Pick<Order, "date" | "time" | "type">, limits: Record<OrderType, number>) {
   const startTime = order.time.trim() ? order.time.trim().slice(0, 5) : "08:00";
   return new Date(
     new Date(`${order.date}T${startTime}:00+02:00`).getTime() - limits[order.type] * 3600000,

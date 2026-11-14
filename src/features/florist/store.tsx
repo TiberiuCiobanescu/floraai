@@ -3,7 +3,7 @@ import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { floristQueryOptions } from "./database-query";
-import { executeFloristOrder, rejectFloristOrder, saveClientName, saveFloristOrder, saveFloristSettings, saveMessageStatus, validateFloristOrder } from "./database.functions";
+import { decideCancellation, executeFloristOrder, rejectFloristOrder, saveClientName, saveFloristOrder, saveFloristSettings, saveMessageStatus, validateFloristOrder } from "./database.functions";
 import { toast } from "sonner";
 import type { Order } from "./data";
 function useFloristState() {
@@ -16,6 +16,7 @@ function useFloristState() {
   const validateOrderFn = useServerFn(validateFloristOrder);
   const rejectOrderFn = useServerFn(rejectFloristOrder);
   const saveClientNameFn = useServerFn(saveClientName);
+  const cancellationFn = useServerFn(decideCancellation);
   const [profile, setProfile] = useState({ name: "Atelierul meu", description: "Florărie independentă", initials: "AZ" });
   const [workspace, setWorkspace] = useState({ name: "Atelier de flori", location: "București, România" });
   async function refresh() {
@@ -79,6 +80,17 @@ function useFloristState() {
     try { await saveStatus({ data: { orderId, status } }); await refresh(); return true; }
     catch (error) { toast.error(error instanceof Error ? error.message : "Statusul mesajului nu a fost salvat."); return false; }
   }
+  async function resolveCancellation(order: Order, accept: boolean) {
+    try {
+      if (order.version === undefined) throw new Error("Reîncarcă datele înainte de decizie.");
+      await cancellationFn({ data: { id: order.id, version: order.version, accept } });
+      await refresh();
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Decizia nu a putut fi salvată.");
+      return false;
+    }
+  }
   async function saveSettings(stock: typeof data.stock, limits: typeof data.limits) {
     await saveSettingsFn({ data: { stock, limits } });
     await refresh();
@@ -95,7 +107,7 @@ function useFloristState() {
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [queryClient]);
-  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateClientName, executeOrder, validateOrder, rejectOrder, updateMessage, saveSettings, refresh };
+  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateClientName, executeOrder, validateOrder, rejectOrder, resolveCancellation, updateMessage, saveSettings, refresh };
 }
 type FloristValue = ReturnType<typeof useFloristState>;
 // An open preview can retain the old provider while a route receives the refreshed hook.

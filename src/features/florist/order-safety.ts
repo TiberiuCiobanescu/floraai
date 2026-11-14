@@ -2,8 +2,8 @@ import { textEquals } from "@/lib/normalize-text";
 import type { Product } from "./data";
 
 export function assertOrderEditable(status: string) {
-  if (["executata", "livrata", "Executată", "Livrată"].some((value) => textEquals(value, status))) {
-    throw new Error("Comenzile executate sau livrate nu pot fi modificate.");
+  if (["executata", "livrata", "anulata", "Executată", "Livrată", "Anulată"].some((value) => textEquals(value, status))) {
+    throw new Error("Comenzile executate, livrate sau anulate nu pot fi modificate.");
   }
 }
 

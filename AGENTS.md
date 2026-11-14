@@ -40,7 +40,7 @@ use the editor.
 - Keep independent content routes for inbox, orders, order detail, inventory, and settings; order detail is un-nested so it does not render inside the orders table.
 - Define florist visual styles in the global design system; scope working-screen tokens to AppShell and reuse presentation tokens with readable paper surfaces so both experiences remain visually consistent without changing presentation styles.
 - Use the shared text normalization helpers for human-text comparisons only; keep original input in state and display, and compare IDs and route paths literally.
-- Process imported message groups through a server-only structured AI call and an invoker database transaction; validate the catalog, missing fields, deadlines and current version before applying changes to avoid partial writes.
+- Process AI message groups and cancellation decisions through atomic invoker RPCs; validate catalog, live deadlines and version, and deduplicate fallback replies while retaining failed messages in Inbox.
 - Keep Framer Motion presentation helpers separate from florist state and honor reduced-motion for transforms, opacity, counters and delays; mount one shared Sonner toaster for action feedback.
 - Keep the illustrated presentation at / outside AppShell and the inbox at /inbox; retain the root florist provider so entering the presentation does not discard edits.
 - Derive shell selection, active navigation, and page animation keys from committed route matches, not the requested location, so pending navigation cannot frame the previous page as the destination.

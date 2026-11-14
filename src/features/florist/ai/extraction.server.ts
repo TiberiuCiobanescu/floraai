@@ -4,25 +4,30 @@ import { databaseClient, readTable } from "../database.functions";
 import { EXTRACTION_INSTRUCTIONS } from "./instructions.server";
 import { createResponsesCall } from "./responses.server";
 import { mandatoryFields } from "../extraction-rules";
+import { modificationDeadline, DEMO_NOW, type OrderType } from "../data";
 import { textEquals } from "@/lib/normalize-text";
 
 export async function extractGroup(request: Request, ids: string[]) {
   const key = process.env["LOVABLE_API_KEY"];
   if (!key) throw new Error("AI-ul integrat nu este configurat.");
   const client = databaseClient();
-  const [catalog, clients, orders, lines, allMessages, stock] = await Promise.all([readTable(client,"produse"),readTable(client,"clienti"),readTable(client,"comenzi"),readTable(client,"linii_comanda"),readTable(client,"mesaje"),readTable(client,"stoc")]);
+  const [catalog, clients, orders, lines, allMessages, stock, terms] = await Promise.all([readTable(client,"produse"),readTable(client,"clienti"),readTable(client,"comenzi"),readTable(client,"linii_comanda"),readTable(client,"mesaje"),readTable(client,"stoc"),readTable(client,"termene")]);
   const denial = allMessages.find(m => m.intrebare_client?.startsWith("AI_ACCESS_DENIED:"));
   if (denial) throw new Error(denial.intrebare_client?.slice(17) ?? "Accesul AI este oprit.");
   const messages = ids.map(id => allMessages.find(m => m.id === id));
   const first = messages[0];
   if (!first || messages.some(m => !m || m.telefon !== first.telefon || m.directie !== "client" || m.tip_mesaj || !["nou","asteapta_client"].includes(m.status))) throw new Error("Mesajele nu pot fi procesate. Reîncarcă Inbox.");
   const customer = clients.find(c => c.telefon === first.telefon);
-  const openOrder = orders.filter(o => o.telefon === first.telefon && !["executata","livrata"].includes(o.status)).sort((a,b) => b.id.localeCompare(a.id,undefined,{numeric:true}))[0];
+  const openOrder = orders.filter(o => o.telefon === first.telefon && !["executata","livrata","anulata","respinsa"].includes(o.status)).sort((a,b) => b.id.localeCompare(a.id,undefined,{numeric:true}))[0];
+  const hours = terms.find(t => t.tip_comanda === openOrder?.tip_comanda)?.ore_inainte_de_livrare;
+  const type: OrderType = openOrder?.tip_comanda === "nunta" ? "Nuntă" : "Buchet în oraș";
+  const deadline = openOrder && hours !== undefined ? modificationDeadline({ date: openOrder.data_livrare ?? "", time: openOrder.interval ?? "", type }, { "Buchet în oraș": hours, "Nuntă": hours }) : undefined;
   const csv = ["id,nume,pret_lei,tip,compozitie,sinonime", ...catalog.map(p => [p.id,p.nume,p.pret_lei,p.tip,p.compozitie,p.sinonime ?? ""].map(v => `"${String(v).replaceAll('"','""')}"`).join(","))].join("\n");
   const lastReply = allMessages.filter(m => m.telefon === first.telefon && m.directie === "florarie").sort((a,b) => b.id.localeCompare(a.id,undefined,{numeric:true}))[0];
   const context = `DATA CURENTA: 2026-11-14 (sambata)\nCATALOG:\n${csv}\nSTOC:\n${JSON.stringify(stock.map(s => ({floare:s.floare,cantitate_fire:s.cantitate_fire,prag_alerta:s.prag_alerta})))}\nULTIMUL MESAJ AL FLORĂRIEI:\n${lastReply?.text ?? "niciunul"}\nCLIENTUL:\n${customer ? JSON.stringify(customer) : "client nou"}\nCOMANDA DESCHISA A CLIENTULUI:\n${openOrder ? JSON.stringify({ ...openOrder, produse: lines.filter(l => l.comanda_id === openOrder.id).map(l => ({ nume_catalog: catalog.find(p => p.id === l.produs_id)?.nume, cantitate:l.cantitate })) }) : "niciuna"}\nMESAJ (telefon, ora, text):\n${messages.map(m => JSON.stringify(m && {telefon:m.telefon,ora:m.ora,text:m.text})).join("\n")}`;
   try {
-    const { result } = createResponsesCall(request, {baseURL:"https://ai.gateway.lovable.dev/v1", apiKey:key, model:"openai/gpt-6-astra"}, [{role:"user",content:context}], EXTRACTION_INSTRUCTIONS);
+    const deadlineContext = `\nORA DEMO CURENTĂ: 2026-11-14 10:05:00\nTERMENE: ${JSON.stringify(terms)}\nTERMEN ACTUAL COMANDĂ: ${deadline && Number.isFinite(deadline.getTime()) ? JSON.stringify({ termen_modificare: new Date(deadline.getTime() + 2 * 3600000).toISOString().slice(0,19), termen_trecut: deadline.getTime() <= DEMO_NOW.getTime() }) : "necunoscut"}`;
+    const { result } = createResponsesCall(request, {baseURL:"https://ai.gateway.lovable.dev/v1", apiKey:key, model:"openai/gpt-6-astra"}, [{role:"user",content:context + deadlineContext}], EXTRACTION_INSTRUCTIONS);
     const output = await result.output;
     if (await result.finishReason === "content-filter") throw new Error("AI-ul a refuzat procesarea acestui mesaj.");
     if (!output) throw new Error("AI-ul nu a returnat o comandă validă.");
@@ -53,14 +58,24 @@ export function handleExtraction(request: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
-      const send = (data: unknown) => controller.enqueue(encoder.encode(JSON.stringify(data)+"\n"));
+      let ids: string[] = [];
+      const send = (data: unknown) => { if (!request.signal.aborted) controller.enqueue(encoder.encode(JSON.stringify(data)+"\n")); };
       const heartbeat = setInterval(() => { if (!request.signal.aborted) send({waiting:true}); },5000);
       try {
-        const {ids} = z.object({ids:z.array(z.string()).min(1).max(500)}).parse(await request.json());
+        ids = z.object({ids:z.array(z.string()).min(1).max(500)}).parse(await request.json()).ids;
         send({waiting:true});
         const result = await extractGroup(request,ids);
         send({done:true,...result});
       } catch(error) {
+        if (ids.length) {
+          try {
+            const { error: fallbackError } = await databaseClient().rpc("raspunde_eroare_extragere", { p_mesaje: ids });
+            if (fallbackError) throw fallbackError;
+          } catch {
+            send({error:"Mesajul este păstrat, dar răspunsul automat nu a putut fi salvat. Reîncearcă procesarea."});
+            return;
+          }
+        }
         send({error: error instanceof Error ? error.message : "Mesajul nu a putut fi procesat."});
       } finally {clearInterval(heartbeat); controller.close();}
     },

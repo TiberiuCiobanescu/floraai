@@ -292,14 +292,23 @@ export type Database = {
         }
         Returns: string
       }
+      decide_anulare_comanda: {
+        Args: { p_accepta: boolean; p_comanda: string; p_versiune: number }
+        Returns: undefined
+      }
       executa_comanda: {
         Args: { p_comanda: string; p_versiune: number }
         Returns: Json
+      }
+      raspunde_eroare_extragere: {
+        Args: { p_mesaje: string[] }
+        Returns: undefined
       }
       respinge_comanda: {
         Args: { p_comanda: string; p_motiv: string; p_versiune: number }
         Returns: undefined
       }
+      termen_actual_comanda: { Args: { p_comanda: string }; Returns: string }
       valideaza_comanda: {
         Args: { p_comanda: string; p_versiune: number }
         Returns: undefined

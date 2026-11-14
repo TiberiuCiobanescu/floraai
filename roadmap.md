@@ -1,5 +1,5 @@
 # FloraAI
-- [ ] Anulare înainte/după termen și decizia florarului; întrebări despre comandă, termen comunicat și răspuns garantat, fără scrieri automate de test sau modificarea datelor existente.
+- [x] Anulare înainte/după termen și decizia florarului; întrebări despre comandă, termen comunicat și răspuns de rezervă la erori. Termene existente verificate: 3/120 ore. 91 teste locale trecute, fără mesaje de test sau modificarea datelor existente; fluxul complet cu mesaje noi rămâne pentru verificarea manuală a utilizatorului.
 - [x] Recomandări AI cu stoc și ultimul răspuns al florăriei; fără creare/modificare de comenzi pentru cererile de recomandare. Funcția instalată, fluxul cu mesaje noi rămâne pentru testarea manuală a utilizatorului.
 - [x] Nume client extras numai explicit și numai pentru numele implicit; editor cu creion în simulator și Detaliu, actualizare peste tot prin datele comune.
 - [x] 78 teste locale trecute; editor verificat pe laptop/telefon și în Detaliu, fără salvări sau mesaje de test în bază.

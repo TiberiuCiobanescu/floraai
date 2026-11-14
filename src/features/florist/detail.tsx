@@ -18,6 +18,7 @@ import { ConversationBubbles } from "./conversation";
 import { OrderValidation } from "./order-validation";
 import { phoneKey } from "./whatsapp";
 import { ClientNameEditor } from "./client-name-editor";
+import { CancellationDecision } from "./cancellation";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -32,6 +33,9 @@ export function OrderDetail({ id }: { id: string }) {
   useEffect(() => {
     if (savedClientName !== undefined) setDraft(current => current && current.client !== savedClientName ? { ...current, client: savedClientName } : current);
   }, [savedClientName]);
+  useEffect(() => {
+    if (original) setDraft(current => current ? { ...current, status: original.status, warning: original.warning ?? "", version: original.version ?? 1 } : original);
+  }, [original?.status, original?.warning, original?.version]);
   if (!draft)
     return (
       <>
@@ -40,7 +44,7 @@ export function OrderDetail({ id }: { id: string }) {
       </>
     );
   const order = draft;
-  const settled = textEquals(order.status, "Executată") || textEquals(order.status, "Livrată");
+  const settled = ["Executată", "Livrată", "Anulată"].some(status => textEquals(order.status, status));
   const observations = orderObservations(order, stock, limits, DEMO_NOW, messages);
   const recommendations = clientQuestionOptions(order, messages);
   const message = messages.find((m) => m.orderId === id && m.direction === "client");
@@ -176,6 +180,7 @@ export function OrderDetail({ id }: { id: string }) {
             )}
           </div>
           {order.warning && <AlertBand tone="amber"><strong>{order.warning}</strong></AlertBand>}
+          {!settled && <CancellationDecision order={original ?? order} onUpdated={updated => setDraft(current => current ? { ...current, status: updated.status, warning: updated.warning ?? "", version: updated.version ?? 1 } : current)} />}
           {observations.length > 0 && (
             <section className="mb-6" aria-label="Observații comandă">
               <h3 className="mb-3">Observații</h3>

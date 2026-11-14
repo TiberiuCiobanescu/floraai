@@ -48,6 +48,7 @@ export function SimulatorPage() {
       const message = error instanceof Error ? error.message : "Mesajul nu a putut fi procesat.";
       toast.error(message);
     } finally {
+      await refresh();
       setBusy(false);
       setProgress("");
     }

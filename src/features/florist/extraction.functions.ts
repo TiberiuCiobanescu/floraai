@@ -21,6 +21,13 @@ export const sendSimulatorMessage = createServerFn({ method: "POST" })
     if (error || !saved) throw new Error("Mesajul nu a putut fi salvat.");
     return saved;
   });
+export const ensureExtractionReply = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ ids: z.array(z.string()).min(1).max(500) }))
+  .handler(async ({ data }) => {
+    const { error } = await databaseClient().rpc("raspunde_eroare_extragere", { p_mesaje: data.ids });
+    if (error) throw new Error("Răspunsul automat nu a putut fi salvat. Mesajul rămâne în Inbox.");
+    return { saved: true };
+  });
 
 export const prepareExtraction = createServerFn({ method: "POST" })
   .inputValidator(z.object({ text: z.string().min(1).max(2000000), channel: z.enum(["WhatsApp", "Fizic", "Telefon"]), phone: z.string().optional() }))

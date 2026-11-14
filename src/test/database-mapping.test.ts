@@ -28,6 +28,7 @@ describe("Connected database mapping", () => {
   it("maps florist validation statuses to the Romanian workflow labels", () => {
     expect(orderStatusLabels["asteapta_validare"]).toBe("De validat");
     expect(orderStatusLabels["respinsa"]).toBe("Respinsă");
+    expect(orderStatusLabels["anulata"]).toBe("Anulată");
   });
   it("reads stem counts from real product composition format", () => {
     expect(parseComposition("trandafir rosu:15;eucalipt:3")).toEqual([{ flower: "trandafir rosu", stems: 15 }, { flower: "eucalipt", stems: 3 }]);

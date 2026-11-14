@@ -4,7 +4,7 @@ import { deadlineDateKey, modificationDeadline } from "@/features/florist/data";
 import { initialOrders, initialLimits } from "./florist-fixtures";
 
 describe("Live order safety", () => {
-  it.each(["executata", "livrata", "Executată", "Livrată"])("does not allow writes to settled status %s", (status) => {
+  it.each(["executata", "livrata", "anulata", "Executată", "Livrată", "Anulată"])("does not allow writes to settled status %s", (status) => {
     expect(() => assertOrderEditable(status)).toThrow();
   });
   it.each(["draft", "asteapta_client", "confirmata", "in_lucru"])("allows editing open status %s", (status) => {

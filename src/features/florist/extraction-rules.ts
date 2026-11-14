@@ -1,6 +1,6 @@
 import type { ExtractedOrder } from "./extraction-schema";
 export function mandatoryFields(result: ExtractedOrder) {
-  if (["altceva", "intrebare_pret", "recomandare"].includes(result.tip_mesaj)) return [];
+  if (["altceva", "intrebare", "anulare", "intrebare_pret", "recomandare"].includes(result.tip_mesaj)) return [];
   return [...new Set([...result.campuri_lipsa,
     ...(!result.produse.length ? ["produse"] : []),
     ...(!result.data_livrare ? ["data_livrare"] : []),

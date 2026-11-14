@@ -1,4 +1,7 @@
+import { ensureExtractionReply } from "./extraction.functions";
+
 export async function processExtraction(ids:string[], signal:AbortSignal) {
+  try {
   const response = await fetch("/api/extrage-comanda",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids}),signal});
   if (!response.ok || !response.body) throw new Error("Procesarea AI nu este disponibilă.");
   const reader = response.body.getReader();
@@ -17,4 +20,8 @@ export async function processExtraction(ids:string[], signal:AbortSignal) {
     if(done) break;
   }
   if(!complete) throw new Error("Procesarea s-a întrerupt. Mesajul rămâne în Inbox.");
+  } catch (error) {
+    if (!signal.aborted) await ensureExtractionReply({ data: { ids } });
+    throw error;
+  }
 }

@@ -11,4 +11,15 @@ Câmp obligatoriu nou în JSON: "nume_client", string sau null. Completează-l d
 
 10. Alegerea unei recomandări
 Dacă clientul răspunde la o recomandare („al doilea”, „primul mesaj”, „pe cel cu bujori”), folosește ULTIMUL MESAJ AL FLORĂRIEI pentru a înțelege la ce se referă. Dacă există o comandă deschisă, mesajul e completare: textul exact al biletului ales intră în bilet, produsul ales intră în produse. Preia toate celelalte câmpuri și produsele neînlocuite din comanda deschisă. Dacă nu există comandă deschisă, mesajul e comanda_noua, iar datele lipsă se cer normal. O alegere nu este confirmare.
+
+11. Reguli prioritare (înlocuiesc orice regulă anterioară contradictorie)
+Dacă clientul spune că nu mai vrea comanda, că o anulează sau că renunță, tip_mesaj = "anulare", campuri_lipsa = [], produse = [], tip_comanda = null. Nu trata anularea drept modificare sau altceva. Decizia și răspunsul anulării sunt stabilite de aplicație.
+tip_mesaj = "intrebare" pentru întrebări despre termenul de modificare/anulare, livrare, stadiul comenzii, program sau livrare. Nu modifica o comandă pentru o întrebare: campuri_lipsa = [], tip_comanda = null. Răspunde în intrebare_client folosind status, data_livrare, interval și termen_modificare din COMANDA DESCHISĂ. Formatează termenul DD.MM.YYYY, ora HH:MM; dacă a trecut, spune că termenul a trecut și florarul verifică posibilitățile, fără a promite modificări. Nu inventa date. Fără comandă activă, spune că nu ai găsit o comandă activă pe acest număr.
+Modificările sunt permise și pentru comenzi confirmate: tip_mesaj = "modificare"; preia toate detaliile neschimbate. Înainte de termen, intrebare_client conține noul rezumat și „Confirmați comanda?”. Un „da” la acest rezumat este confirmare, nu modificare. Termenele sunt cele din TERMENE, nu valori inventate.
+Client nehotărât („nu știu ce să iau”, „ceva frumos”, „ce aveți?”): recomandare, nu comandă. Propune două produse eligibile din catalog, cu preț, și o singură întrebare despre ocazie sau buget (în locul întrebării finale despre alegere).
+La buget menționat, recomandă numai produse cu preț <= buget. Dacă nu există în buget, propune cel mai ieftin produs eligibil și explică depășirea bugetului. Nu inventa prețuri.
+Pentru produs inexistent sau cu flori la/sub pragul de alertă ori stoc insuficient pentru rețetă: recomandare, fără comandă; spune politicos că nu este disponibil și propune două alternative eligibile din catalog. Dacă nu există două, spune că florarul verifică disponibilitatea, fără a inventa sau recomanda flori indisponibile.
+Livrăm zilnic, inclusiv sâmbăta și duminica, între 08:00 și 20:00.
+Fiecare mesaj primește intrebare_client: răspuns scurt, politicos, cu diacritice, la „dumneavoastră”, maximum o întrebare. Excepții: confirmare și anulare au răspuns generat de aplicație.
+La altceva, salut sau mulțumire: „Cu plăcere! Vă mai putem ajuta cu ceva?”. Altfel: „Ne pare rău, nu am înțeles mesajul. Ne puteți spune dacă doriți o comandă nouă, o modificare, o anulare sau un preț?”. Nu lăsa altceva fără răspuns.
 `;

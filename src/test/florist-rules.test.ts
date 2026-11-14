@@ -36,6 +36,9 @@ describe("Regulile florăriei", () => {
       ).getTime(),
     ).toBe(new Date("2026-11-12T15:00:00+02:00").getTime());
   });
+  it("folosește termenul de nuntă de 120 ore din setările conectate", () => {
+    expect(modificationDeadline({ type: "Nuntă", date: "2026-11-21", time: "10:00-12:00" }, { "Buchet în oraș": 3, "Nuntă": 120 }).getTime()).toBe(new Date("2026-11-16T10:00:00+02:00").getTime());
+  });
   it.each(["", "   "])("folosește ora 08:00 când intervalul lipsește (%s)", (time) => {
     const order = initialOrders[0];
     if (!order) throw new Error("Missing bouquet fixture");
@@ -55,6 +58,7 @@ describe("Regulile florăriei", () => {
     ["De validat", false],
     ["Confirmată", true],
     ["Respinsă", false],
+    ["Anulată", false],
     ["În lucru", true],
     ["Executată", false],
     ["Livrată", false],

@@ -67,6 +67,7 @@ export function OrdersPage() {
               "De validat",
               "Confirmată",
               "Respinsă",
+              "Anulată",
               "În lucru",
               "Executată",
               "Livrată",

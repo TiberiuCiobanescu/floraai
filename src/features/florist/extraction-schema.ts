@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const extractionSchema = z.object({
-  tip_mesaj: z.enum(["comanda_noua", "modificare", "completare", "confirmare", "intrebare_pret", "recomandare", "altceva"]),
+  tip_mesaj: z.enum(["comanda_noua", "modificare", "completare", "confirmare", "anulare", "intrebare", "intrebare_pret", "recomandare", "altceva"]),
   telefon: z.string(),
   nume_client: z.string().nullable(),
   tip_comanda: z.enum(["buchet_oras", "nunta"]).nullable(),
