@@ -12,7 +12,8 @@ import { useEntrance } from "./motion";
 export function OrdersPage() {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { orders, updateOrder, limits } = useFlorist();
+  const { orders, executeOrder, limits } = useFlorist();
+  const [executing, setExecuting] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Toate statusurile");
   const filtered = orders
@@ -117,8 +118,12 @@ export function OrdersPage() {
                       <Button
                         size="sm"
                         variant="outline"
+                        disabled={executing !== null}
                         onClick={async () => {
-                          if (await updateOrder({ ...o, status: "Executată" })) toast.success("Comanda a fost marcată executată");
+                          setExecuting(o.id);
+                          try {
+                            if (await executeOrder(o)) toast.success("Comanda a fost marcată executată");
+                          } finally { setExecuting(null); }
                         }}
                       >
                         <Check />

@@ -289,6 +289,10 @@ export type Database = {
         }
         Returns: string
       }
+      executa_comanda: {
+        Args: { p_comanda: string; p_versiune: number }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

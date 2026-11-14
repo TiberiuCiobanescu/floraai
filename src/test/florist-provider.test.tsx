@@ -4,7 +4,7 @@ import { FloristProvider, useFlorist } from "@/features/florist/store";
 
 vi.mock("@tanstack/react-query", () => ({ queryOptions: (options: unknown) => options, useSuspenseQuery: () => ({ data: { orders: [], messages: [], stock: [], limits: {} } }), useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => vi.fn() }));
-vi.mock("@/features/florist/database.functions", () => ({ getFloristData: vi.fn(), saveFloristOrder: vi.fn(), saveFloristSettings: vi.fn(), saveMessageStatus: vi.fn() }));
+vi.mock("@/features/florist/database.functions", () => ({ getFloristData: vi.fn(), executeFloristOrder: vi.fn(), saveFloristOrder: vi.fn(), saveFloristSettings: vi.fn(), saveMessageStatus: vi.fn() }));
 afterEach(cleanup);
 
 function ProfileConsumer() {

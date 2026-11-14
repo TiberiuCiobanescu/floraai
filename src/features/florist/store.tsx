@@ -2,7 +2,7 @@ import { createContext, useContext, useState, type Context, type ReactNode } fro
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { floristQueryOptions } from "./database-query";
-import { saveFloristOrder, saveFloristSettings, saveMessageStatus } from "./database.functions";
+import { executeFloristOrder, saveFloristOrder, saveFloristSettings, saveMessageStatus } from "./database.functions";
 import { toast } from "sonner";
 import type { Order } from "./data";
 function useFloristState() {
@@ -11,6 +11,7 @@ function useFloristState() {
   const saveOrder = useServerFn(saveFloristOrder);
   const saveSettingsFn = useServerFn(saveFloristSettings);
   const saveStatus = useServerFn(saveMessageStatus);
+  const executeOrderFn = useServerFn(executeFloristOrder);
   const [profile, setProfile] = useState({ name: "Atelierul meu", description: "Florărie independentă", initials: "AZ" });
   const [workspace, setWorkspace] = useState({ name: "Atelier de flori", location: "București, România" });
   async function refresh() {
@@ -20,6 +21,24 @@ function useFloristState() {
     try { await saveOrder({ data: order }); await refresh(); return true; }
     catch (error) { toast.error(error instanceof Error ? error.message : "Comanda nu a fost salvată."); return false; }
   }
+  async function executeOrder(order: Order) {
+    try {
+      if (order.version === undefined) throw new Error("Reîncarcă datele înainte de execuție.");
+      const result = await executeOrderFn({ data: { id: order.id, version: order.version } });
+      if (!result.ok) {
+        toast.warning("Stoc insuficient. Comanda nu a fost executată.", {
+          description: result.shortages.map((item) => `${item.flower}: lipsesc ${item.missing} fire`).join("; "),
+          duration: 10000,
+        });
+        return false;
+      }
+      await refresh();
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Comanda nu a putut fi executată.");
+      return false;
+    }
+  }
   async function updateMessage(orderId: string, status: string) {
     try { await saveStatus({ data: { orderId, status } }); await refresh(); return true; }
     catch (error) { toast.error(error instanceof Error ? error.message : "Statusul mesajului nu a fost salvat."); return false; }
@@ -28,7 +47,7 @@ function useFloristState() {
     await saveSettingsFn({ data: { stock, limits } });
     await refresh();
   }
-  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateMessage, saveSettings, refresh };
+  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, executeOrder, updateMessage, saveSettings, refresh };
 }
 type FloristValue = ReturnType<typeof useFloristState>;
 // An open preview can retain the old provider while a route receives the refreshed hook.

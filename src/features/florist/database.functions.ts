@@ -42,6 +42,22 @@ export const getFloristData = createServerFn({ method: "GET" }).handler(async ()
   return mapFloristRows({ produse, stoc, clienti, livrari_furnizor, termene, comenzi, linii_comanda, mesaje });
 });
 export type FloristData = Awaited<ReturnType<typeof getFloristData>>;
+const executionResultSchema = z.object({
+  ok: z.boolean(),
+  shortages: z.array(z.object({ flower: z.string(), missing: z.number().int().positive() })),
+});
+export const executeFloristOrder = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string().min(1), version: z.number().int().positive() }))
+  .handler(async ({ data }) => {
+    const { data: result, error } = await databaseClient().rpc("executa_comanda", {
+      p_comanda: data.id, p_versiune: data.version,
+    });
+    if (error) {
+      console.error("Execute order:", error.message);
+      throw new Error(error.code === "P0001" ? error.message : "Comanda nu a putut fi executată. Stocul nu s-a modificat.");
+    }
+    return executionResultSchema.parse(result);
+  });
 const settingsSchema = z.object({
   limits: z.object({ "Buchet în oraș": z.number().int().min(0).max(720), "Nuntă": z.number().int().min(0).max(720) }),
   stock: z.array(z.object({ key: z.string().min(1), threshold: z.number().int().min(0) })),

@@ -32,7 +32,7 @@ use the editor.
 ## Application architecture
 - Load florist operational data exclusively from existing connected tables through a server function and a root Query loader; the provider exposes the query result, never demo fallback rows, so navigation and refresh show database data.
 - Use the publishable client under the team’s existing demo access policies, never admin credentials; preserve table structure and surface failed operations instead of claiming success.
-- Order execution requires an atomic database operation covering status and stock; do not implement partial stock writes in application code.
+- Execute saved orders exclusively through the invoker RPC with order/version and deterministic row locks; it aggregates catalog recipes and auxiliary greenery, checks every shortage before writes, and commits stock/status together before refreshing the shared query.
 - Reject settled-order writes before touching clients, orders or lines; message updates only target open message statuses, preserving confirmed and ignored records.
 - Resolve edited product recipes against the current catalog immediately and clear unknown recipes; guard missing delivery dates instead of serializing invalid dates.
 - Preserve the florist context identity in Vite hot-module data across preview updates; refreshed hooks must read the existing provider without storing SSR state globally.

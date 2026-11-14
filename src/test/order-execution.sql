@@ -1,0 +1,41 @@
+-- Integration regression tests. Run against Supabase with run_sql; always rolls back.
+BEGIN;
+DO $$
+DECLARE r jsonb; before_stock jsonb; after_stock jsonb; rejected boolean;
+BEGIN
+ INSERT INTO public.clienti(telefon,nume,tip) VALUES ('+40700000881','Execution test','persoana');
+ INSERT INTO public.comenzi(id,telefon,status,versiune) VALUES ('TEST-EXEC-881','+40700000881','confirmata',1);
+ INSERT INTO public.linii_comanda(comanda_id,produs_id,cantitate,auxiliare) VALUES ('TEST-EXEC-881','P01',2,'verdeata, verdeață'),('TEST-EXEC-881','P01',1,null);
+ UPDATE public.stoc SET cantitate_fire=CASE floare WHEN 'trandafir rosu' THEN 44 ELSE 100 END WHERE floare IN ('trandafir rosu','eucalipt');
+ SELECT jsonb_object_agg(floare,cantitate_fire) INTO before_stock FROM public.stoc;
+ r:=public.executa_comanda('TEST-EXEC-881',1);
+ IF r->>'ok'<>'false' OR r->'shortages'<> '[{"flower":"trandafir rosu","missing":1}]'::jsonb THEN RAISE EXCEPTION 'Shortage must report exactly 1 red rose: %',r; END IF;
+ SELECT jsonb_object_agg(floare,cantitate_fire) INTO after_stock FROM public.stoc;
+ IF after_stock<>before_stock OR (SELECT status FROM public.comenzi WHERE id='TEST-EXEC-881')<>'confirmata' OR (SELECT versiune FROM public.comenzi WHERE id='TEST-EXEC-881')<>1 THEN RAISE EXCEPTION 'Shortage changed stock/order'; END IF;
+ UPDATE public.stoc SET cantitate_fire=75,prag_alerta=30 WHERE floare='trandafir rosu';
+ r:=public.executa_comanda('TEST-EXEC-881',1);
+ IF r->>'ok'<>'true' THEN RAISE EXCEPTION 'Execution failed: %',r; END IF;
+ IF (SELECT cantitate_fire FROM public.stoc WHERE floare='trandafir rosu')<>30 THEN RAISE EXCEPTION 'Recipe x line quantities must consume 45 roses'; END IF;
+ IF (SELECT cantitate_fire FROM public.stoc WHERE floare='eucalipt')<>85 THEN RAISE EXCEPTION 'Recipe consumes 9 eucalyptus and two greenery tokens consume 6 more'; END IF;
+ IF (SELECT status FROM public.comenzi WHERE id='TEST-EXEC-881')<>'executata' OR (SELECT versiune FROM public.comenzi WHERE id='TEST-EXEC-881')<>2 THEN RAISE EXCEPTION 'Execution did not settle order'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.stoc WHERE floare='trandafir rosu' AND cantitate_fire<=prag_alerta) THEN RAISE EXCEPTION 'Threshold alert missing'; END IF;
+ SELECT jsonb_object_agg(floare,cantitate_fire) INTO before_stock FROM public.stoc;
+ rejected:=false;
+ BEGIN PERFORM public.executa_comanda('TEST-EXEC-881',2); EXCEPTION WHEN raise_exception THEN rejected:=true; END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Repeated execution must be rejected'; END IF;
+ SELECT jsonb_object_agg(floare,cantitate_fire) INTO after_stock FROM public.stoc;
+ IF after_stock<>before_stock THEN RAISE EXCEPTION 'Repeated execution consumed stock'; END IF;
+ UPDATE public.comenzi SET status='draft' WHERE id='TEST-EXEC-881';
+ rejected:=false;
+ BEGIN PERFORM public.executa_comanda('TEST-EXEC-881',2); EXCEPTION WHEN raise_exception THEN rejected:=true; END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Draft execution must be rejected'; END IF;
+ UPDATE public.comenzi SET status='in_lucru' WHERE id='TEST-EXEC-881';
+ rejected:=false;
+ BEGIN PERFORM public.executa_comanda('TEST-EXEC-881',1); EXCEPTION WHEN raise_exception THEN rejected:=true; END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Stale version must be rejected'; END IF;
+ UPDATE public.stoc SET cantitate_fire=100 WHERE floare='trandafir rosu';
+ r:=public.executa_comanda('TEST-EXEC-881',2);
+ IF r->>'ok'<>'true' THEN RAISE EXCEPTION 'In-work execution must succeed'; END IF;
+ RAISE NOTICE 'PASS: quantities, repeated greenery, shortages/rollback, execution/status/version, threshold, eligibility and stale version';
+END $$;
+ROLLBACK;
