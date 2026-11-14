@@ -83,10 +83,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Florio · Atelierul tău, în ordine" },
+      { title: "FloraAI · Atelierul tău, în ordine" },
       { name: "description", content: "Asistentul de comenzi al florăriei tale." },
-      { name: "author", content: "Florio" },
-      { property: "og:title", content: "Florio · Atelierul tău, în ordine" },
+      { name: "author", content: "FloraAI" },
+      { property: "og:title", content: "FloraAI · Atelierul tău, în ordine" },
       { property: "og:description", content: "Asistentul de comenzi al florăriei tale." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

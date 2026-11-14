@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link to="/" className="brand">
           <Flower2 strokeWidth={1.4} />
           <span>
-            Florio<span className="brand-subtitle">ASISTENTUL FLORĂRIEI TALE</span>
+            FloraAI<span className="brand-subtitle">ASISTENTUL FLORĂRIEI TALE</span>
           </span>
         </Link>
         <div className="workspace">
@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <footer className="page-footer">
           <span>Cu grijă pentru fiecare comandă.</span>
           <Flower2 size={15} />
-          <span>Florio · Atelierul tău, în ordine</span>
+          <span>FloraAI · Atelierul tău, în ordine</span>
         </footer>
       </div>
     </div>
@@ -193,9 +193,9 @@ export const icons = { ArrowUpRight, CircleCheck, Clock3 };
 export function pageHead(title: string, description: string) {
   return {
     meta: [
-      { title: `${title} · Florio` },
+      { title: `${title} · FloraAI` },
       { name: "description", content: description },
-      { property: "og:title", content: `${title} · Florio` },
+      { property: "og:title", content: `${title} · FloraAI` },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
