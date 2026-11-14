@@ -31,7 +31,7 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
       title: expired ? "Termenul de modificare a trecut" : "Termenul de modificare este deschis",
       detail: expired ? `Termen: ${formatted}. Verifică posibilitatea modificării înainte de a o promite clientului.` : `Modificările pot fi discutate până la ${formatted}, cu ${limits[order.type]} ore înainte de livrare.`,
       template: expired
-        ? `${greeting} ${context}${request} Termenul de modificare (${formatted}) a trecut. Verificăm dacă solicitarea mai poate fi realizată. Varianta pe care v-o putem propune este: [completează după verificare]. Este potrivită pentru dumneavoastră?`
+        ? `${greeting}\n\n${context}\n\n${request.trim() || "Referitor la modificarea comenzii dumneavoastră:"}\nTermenul de modificare a fost ${formatted} și a trecut. Trebuie să verificăm dacă mai putem realiza modificarea solicitată înainte de a o confirma. Doriți să verificăm această posibilitate?`
         : `${greeting} ${context}${request} Termenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
     });
   }
@@ -50,7 +50,7 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
     observations.push({
       kind: "shortage", title: `Stoc insuficient: ${item.name}`,
       detail: `Necesar: ${needed} fire · În stoc: ${item.quantity} fire · Lipsesc: ${needed - item.quantity} fire.`,
-      template: `${greeting} ${context} Pentru ${item.name.toLocaleLowerCase("ro-RO")}, sunt necesare ${needed} fire, iar în stoc avem ${item.quantity}. Ne lipsesc ${needed - item.quantity} fire. Vă propunem [completează florile alternative și cantitatea] sau [completează o altă variantă verificată]. Ce variantă preferați?`,
+      template: `${greeting}\n\n${context}\n\nPentru ${item.name.toLocaleLowerCase("ro-RO")}, sunt necesare ${needed} fire, iar în stoc avem ${item.quantity}. Ne lipsesc ${needed - item.quantity} fire.\n\nVă propunem [completează florile alternative și cantitatea] sau [completează o altă variantă verificată]. Ce variantă preferați?`,
     });
   }
   for (const name of unknown) {

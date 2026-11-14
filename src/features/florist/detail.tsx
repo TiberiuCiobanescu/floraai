@@ -332,7 +332,7 @@ export function OrderDetail({ id }: { id: string }) {
                   onClick={() => setQuestion(observation.template)}
                 >
                   <Plus className="shrink-0" />
-                  {observation.kind === "deadline" ? "Termen de modificare" : observation.title}
+                  {observation.kind === "deadline" ? (expired ? "Solicitare după termenul de modificare" : "Termen de modificare") : observation.title}
                 </Button>
               ))}
               {recommendations.map((recommendation) => (
