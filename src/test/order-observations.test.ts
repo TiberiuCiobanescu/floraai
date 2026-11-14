@@ -46,5 +46,9 @@ describe("Observații pentru termen și stoc", () => {
     expect(deadline?.template).not.toContain("Ne lipsesc 8 fire");
     expect(shortage?.template).toContain("Ne lipsesc 8 fire");
     expect(shortage?.template).not.toContain("termenul de modificare");
+    const recommendations = recommendedClientQuestions(personalized, [], observations);
+    expect(recommendations[0]).toBe(deadline?.template);
+    expect(recommendations[1]).toBe(shortage?.template);
+    expect(recommendations[0]).not.toBe(recommendations[1]);
   });
 });

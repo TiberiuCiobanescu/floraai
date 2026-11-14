@@ -11,7 +11,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
 import { recommendedClientQuestions } from "./client-questions";
 import { orderObservations } from "./order-observations";
-import { ObservationMessage } from "./observation-message";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -321,13 +320,21 @@ export function OrderDetail({ id }: { id: string }) {
               />
             </label>
           </div>
-          {observations.map((observation) => (
-            <ObservationMessage key={`${id}:${observation.kind}:${observation.title}`} observation={observation} onSend={sendQuestion} />
-          ))}
           <div className="question-box">
             <h3>Întrebare pentru client</h3>
             <div className="mb-3 flex flex-col items-start gap-2" aria-label="Întrebări recomandate">
               <span className="text-xs text-muted-foreground">Întrebări recomandate</span>
+              {observations.map((observation) => (
+                <Button
+                  key={observation.title}
+                  variant="outline"
+                  className="h-auto max-w-full justify-start whitespace-normal text-left text-xs"
+                  onClick={() => setQuestion(observation.template)}
+                >
+                  <Plus className="shrink-0" />
+                  {observation.kind === "deadline" ? "Termen de modificare" : observation.title}
+                </Button>
+              ))}
               {recommendations.map((recommendation) => (
                 <Button
                   key={recommendation}
