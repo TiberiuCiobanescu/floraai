@@ -24,6 +24,7 @@ import { textEquals } from "@/lib/normalize-text";
 import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 import { useEntrance } from "./motion";
+import { ProfileEditor } from "./profile";
 const items = [
   { label: "Inbox", to: "/inbox" as const, icon: Inbox },
   { label: "Comenzi", to: "/comenzi" as const, icon: ClipboardList },
@@ -100,14 +101,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span>Restul îl ținem în ordine.</span>
             </div>
           </div>
-          <div className="profile">
-            <span className="profile-avatar">AZ</span>
-            <div>
-              <strong>Atelierul meu</strong>
-              <small>Florărie independentă</small>
-            </div>
-            <span className="online-dot" />
-          </div>
+          <ProfileEditor />
         </div>
       </aside>
       <div className="app-main">

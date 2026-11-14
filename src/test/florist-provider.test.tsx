@@ -13,7 +13,18 @@ function SettingsConsumer() {
   );
 }
 
+function ProfileConsumer() {
+  const { profile, setProfile } = useFlorist();
+  return <button onClick={() => setProfile({ name: "Aylin", description: "Florist", initials: "AY" })}>{profile.name}</button>;
+}
+
 describe("Florist provider", () => {
+  it("keeps the edited profile when a page consumer remounts", () => {
+    const view = render(<FloristProvider><ProfileConsumer key="initial" /></FloristProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Atelierul meu" }));
+    view.rerender(<FloristProvider><ProfileConsumer key="next-page" /></FloristProvider>);
+    expect(screen.getByRole("button", { name: "Aylin" })).toBeInTheDocument();
+  });
   it("keeps saved settings available when a route consumer remounts", () => {
     const view = render(<FloristProvider><SettingsConsumer key="initial" /></FloristProvider>);
     fireEvent.click(screen.getByRole("button", { name: "3" }));

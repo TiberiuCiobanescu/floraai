@@ -313,12 +313,19 @@ button:active:not(:disabled) { transform: scale(0.97); }
 }
 .profile {
   display: flex;
+  width: 100%;
+  height: auto;
+  white-space: normal;
+  text-align: left;
+  justify-content: flex-start;
+  border-radius: 0;
   align-items: center;
   gap: 10px;
   border-top: 1px solid var(--border);
   padding: 20px 0;
 }
 .profile-avatar {
+  flex-shrink: 0;
   width: 34px;
   height: 34px;
   display: grid;
@@ -332,6 +339,7 @@ button:active:not(:disabled) { transform: scale(0.97); }
   display: block;
   font-size: 11px;
 }
+.profile-copy { min-width: 0; overflow-wrap: anywhere; }
 .profile small {
   display: block;
   font-size: 9px;

@@ -40,3 +40,4 @@ use the editor.
 - Keep the illustrated presentation at / outside AppShell and the inbox at /inbox; retain the root florist provider so entering the presentation does not discard edits.
 - Derive shell selection, active navigation, and page animation keys from committed route matches, not the requested location, so pending navigation cannot frame the previous page as the destination.
 - Keep presentation graphics independent from live florist state; illustrative messages, orders, and stock must never alter demo data.
+- Keep editable demo profile fields in the shared florist provider, with explicit save/cancel in a dialog; profile editing does not imply authentication or account switching.
