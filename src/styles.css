@@ -1574,7 +1574,7 @@ blockquote {
 .story-mid { z-index: -2; opacity: 0.8; }
 .story-front { z-index: -1; }
 .story-front img { object-position: center bottom; }
-.story-hero .story-front img {
+.story-scene .story-front img {
   transform-origin: center bottom;
   animation: story-flower-breeze 7s ease-in-out infinite;
   will-change: transform;
@@ -1657,17 +1657,17 @@ blockquote {
 }
 @media (max-width: 480px) {
   .story-hero { background: var(--story-rose); }
-  .story-hero .story-layer {
+  .story-scene .story-layer {
     inset: auto 0 0;
     height: auto;
     aspect-ratio: 1920 / 1088;
     transform: none !important;
   }
-  .story-hero .story-layer img {
+  .story-scene .story-layer img {
     object-fit: contain;
     object-position: center bottom;
   }
-  .story-hero .story-background {
+  .story-scene .story-background {
     inset: 0;
     height: 100%;
     aspect-ratio: auto;
@@ -1681,6 +1681,6 @@ blockquote {
 }
 @media (prefers-reduced-motion: reduce) {
   .story-layer { inset: 0; }.story-petal { display: none; }
-  .story-hero .story-front img { animation: none; transform: none; will-change: auto; }
+  .story-scene .story-front img { animation: none; transform: none; will-change: auto; }
   .story-message { transform: none; }.story-message-0 { top: 0; left: 5%; }.story-message-1 { top: 0; left: auto; right: 5%; }.story-message-2 { top: auto; bottom: 0; left: 5%; }.story-message-3 { top: auto; bottom: 0; left: auto; right: 5%; }
 }
