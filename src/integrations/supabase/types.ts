@@ -172,6 +172,7 @@ export type Database = {
         Row: {
           canal: string | null
           comanda_id: string | null
+          directie: string
           id: string
           intrebare_client: string | null
           ora: string
@@ -183,6 +184,7 @@ export type Database = {
         Insert: {
           canal?: string | null
           comanda_id?: string | null
+          directie?: string
           id?: string
           intrebare_client?: string | null
           ora: string
@@ -194,6 +196,7 @@ export type Database = {
         Update: {
           canal?: string | null
           comanda_id?: string | null
+          directie?: string
           id?: string
           intrebare_client?: string | null
           ora?: string
