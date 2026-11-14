@@ -1,4 +1,5 @@
 # FloraAI
+- [ ] Anulare înainte/după termen și decizia florarului; întrebări despre comandă, termen comunicat și răspuns garantat, fără scrieri automate de test sau modificarea datelor existente.
 - [x] Recomandări AI cu stoc și ultimul răspuns al florăriei; fără creare/modificare de comenzi pentru cererile de recomandare. Funcția instalată, fluxul cu mesaje noi rămâne pentru testarea manuală a utilizatorului.
 - [x] Nume client extras numai explicit și numai pentru numele implicit; editor cu creion în simulator și Detaliu, actualizare peste tot prin datele comune.
 - [x] 78 teste locale trecute; editor verificat pe laptop/telefon și în Detaliu, fără salvări sau mesaje de test în bază.
