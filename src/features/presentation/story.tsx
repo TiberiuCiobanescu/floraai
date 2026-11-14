@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { animate, motion, MotionConfig, useInView, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform, type MotionValue } from "framer-motion";
-import { ArrowDown, ArrowRight, Check, Flower2, MessageCircle, Phone, StickyNote, Sparkles, ShieldCheck, UserRound, CircleCheck } from "lucide-react";
+import { motion, MotionConfig, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { ArrowDown, ArrowRight, Flower2, Inbox, ClipboardList, Sprout, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import atelier from "@/assets/story-atelier.jpg";
 import workbench from "@/assets/story-workbench.png";
 import foreground from "@/assets/story-foreground.png";
 import bouquet from "@/assets/story-bouquet.jpg";
+import inboxPreview from "@/assets/floraai-inbox.png.asset.json";
 
 function useStoryReducedMotion() {
   const prefersReduced = useReducedMotion();
@@ -52,50 +53,27 @@ function IllustratedSection({ children, final = false }: { children: ReactNode; 
   </section>;
 }
 
-function FlyingMessage({ index, progress, reduced }: { index: number; progress: MotionValue<number>; reduced: boolean }) {
-  const positions = [[-340, -115, -12], [325, -70, 10], [-260, 120, 9], [300, 145, -8]];
-  const [startX = 0, startY = 0, angle = 0] = positions[index] ?? [0, 0, 0];
-  const x = useTransform(progress, [0.12, 0.65], [startX, 0]);
-  const y = useTransform(progress, [0.12, 0.65], [startY, 0]);
-  const rotate = useTransform(progress, [0.12, 0.65], [angle, 0]);
-  const opacity = useTransform(progress, [0.3, 0.44], [1, 0]);
-  const Icon = [MessageCircle, Phone, StickyNote, MessageCircle][index] ?? MessageCircle;
-  return <motion.div className={`story-message story-message-${index}`} style={reduced ? {} : { x, y, rotate, opacity }}><Icon size={21} /><div><small>{["WhatsApp", "Telefon", "Bilețel", "WhatsApp"][index]}</small><p>{["Un buchet pentru mâine…", "La ce oră îl puteți livra?", "Să nu uităm bilețelul!", "Adresa este…"][index]}</p></div></motion.div>;
-}
-
-function Chaos() {
-  const ref = useRef<HTMLElement>(null);
+function AboutApp() {
   const reduced = useStoryReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const opacity = useTransform(scrollYProgress, [0.42, 0.5], [0, 1]);
-  const scale = useTransform(scrollYProgress, [0.42, 0.5], [0.85, 1]);
-  return <section ref={ref} className="story-section story-chaos"><div className="story-section-heading"><span className="story-chapter">01 / HAOSUL</span><StoryTitle>Haosul</StoryTitle><p>Comenzile vin de peste tot. Unele se pierd.</p></div><div className="story-message-stage">{[0, 1, 2, 3].map((index) => <FlyingMessage key={index} index={index} progress={scrollYProgress} reduced={reduced} />)}<motion.div className="story-order" style={reduced ? {} : { opacity, scale }}><div className="story-order-heading"><Flower2 /><span>Comandă</span><CircleCheck /></div><p>Buchet de flori</p><div><span>Livrare</span><strong>Mâine</strong></div><div><span>Adresă</span><Check size={18} /></div><div><span>Bilețel</span><Check size={18} /></div></motion.div></div><img className="story-corner-flowers" src={foreground} alt="" width={1920} height={1088} loading="lazy" /></section>;
+  return <section className="story-section story-chaos"><div className="story-section-heading"><span className="story-chapter">01 / FLORAAI</span><StoryTitle>Atelierul tău, într-un singur loc.</StoryTitle><p>FloraAI este asistentul de organizare al florăriei tale.</p></div><motion.p className="story-app-intro" initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: reduced ? 0 : 0.4 }}>Mesajele clienților, detaliile comenzilor și florile din stoc se întâlnesc în același atelier. Tu păstrezi controlul asupra fiecărei comenzi.</motion.p><EnterAtelier /><img className="story-corner-flowers" src={foreground} alt="" width={1920} height={1088} loading="lazy" /></section>;
 }
 
-function CountingNumber({ from, to, decimals = 0, suffix = "" }: { from?: number; to: number; decimals?: number; suffix?: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.6 });
+function AppScreens() {
   const reduced = useStoryReducedMotion();
-  const [fraction, setFraction] = useState(0);
-  useEffect(() => {
-    if (!inView || reduced) return;
-    const control = animate(0, 1, { duration: 1.25, ease: "easeOut", onUpdate: setFraction });
-    return () => control.stop();
-  }, [inView, reduced]);
-  const format = (n: number) => (n * (reduced ? 1 : fraction)).toFixed(decimals).replace(/\.0$/, "").replace(".", ",");
-  return <span ref={ref}>{from === undefined ? "" : `${format(from)}–`}{format(to)}{suffix}</span>;
+  const screens = [
+    { title: "Inbox", description: "Mesajele clienților, grupate după status, canal și tip.", Icon: Inbox, to: "/inbox" as const },
+    { title: "Comenzi", description: "Produse, livrare, destinatar și status pentru fiecare comandă.", Icon: ClipboardList, to: "/comenzi" as const },
+    { title: "Stoc", description: "Cantitățile de flori și alertele pentru stoc redus.", Icon: Sprout, to: "/stoc" as const },
+    { title: "Setări", description: "Termenele de modificare și pragurile de stoc ale atelierului.", Icon: Settings2, to: "/setari" as const },
+  ];
+  return <section className="story-section story-numbers"><div className="story-section-heading"><span className="story-chapter">02 / ATELIERUL TĂU</span><StoryTitle>Tot ce ai de organizat.</StoryTitle></div><div className="story-app-screens">{screens.map(({ title, description, Icon, to }, i) => <motion.div key={title} initial={reduced ? false : { opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: reduced ? 0 : 0.4, delay: reduced ? 0 : i * 0.05 }}><Icon size={30} /><h3>{title}</h3><p>{description}</p><Button asChild variant="ghost" className="story-header-link"><Link to={to}>Deschide {title} <ArrowRight size={16} /></Link></Button></motion.div>)}</div><img className="story-corner-flowers" src={foreground} alt="" width={1920} height={1088} loading="lazy" /></section>;
 }
 
-function Numbers() {
-  return <section className="story-section story-numbers"><div className="story-section-heading"><span className="story-chapter">02 / CIFRELE</span><StoryTitle>Cifrele</StoryTitle></div><div className="story-statistics"><div><strong><CountingNumber from={35} to={40} /></strong><p>comenzi pe zi</p></div><div><strong><CountingNumber from={1.5} to={3} decimals={1} /></strong><p>ore pe zi pierdute cu transcrierea</p></div><div><strong><CountingNumber from={2} to={5} suffix="%" /></strong><p>comenzi greșite</p></div><div><strong><CountingNumber to={300} suffix=" lei" /></strong><p>costul unui bilețel greșit</p></div></div><small className="story-source">Din interviuri cu 3 florării</small><img className="story-corner-flowers" src={foreground} alt="" width={1920} height={1088} loading="lazy" /></section>;
-}
-
-function OrderFlow() {
+function AppPreview() {
   const reduced = useStoryReducedMotion();
-  const steps = [{ text: "Mesaj", Icon: MessageCircle }, { text: "AI înțelege", Icon: Sparkles }, { text: "Reguli verifică", detail: "stoc, termen, client", Icon: ShieldCheck }, { text: "Florarul aprobă", Icon: UserRound }, { text: "Clientul confirmă", Icon: CircleCheck }];
-  return <section className="story-section story-flow"><div className="story-section-heading"><span className="story-chapter">03 / ORDINEA</span><StoryTitle>Ordinea</StoryTitle></div><div className="story-steps">{steps.map(({ text, detail, Icon }, i) => <motion.div key={text} className="story-step" initial={reduced ? false : { opacity: 0, y: 30 }} animate={reduced ? { opacity: 1, y: 0 } : {}} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.7 }} transition={{ duration: reduced ? 0 : 0.45, delay: reduced ? 0 : i * 0.14 }}><span className="story-step-number">0{i + 1}</span><Icon className="story-step-icon" /><h3>{text}</h3>{detail && <p>({detail})</p>}{i < 4 && <ArrowRight className="story-step-arrow" />}</motion.div>)}</div><img className="story-corner-flowers" src={workbench} alt="" width={1920} height={1088} loading="lazy" /></section>;
+  return <section className="story-section story-flow"><div className="story-section-heading"><span className="story-chapter">03 / ÎN APLICAȚIE</span><StoryTitle>Un loc pentru fiecare detaliu.</StoryTitle><p>Acesta este Inboxul FloraAI, cu datele demonstrative ale atelierului.</p></div><motion.img className="story-app-preview" src={inboxPreview.url} alt="Inboxul FloraAI: mesaje, filtre și statusurile clienților" loading="lazy" initial={reduced ? false : { opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: reduced ? 0 : 0.4 }} /><EnterAtelier /><img className="story-corner-flowers" src={workbench} alt="" width={1920} height={1088} loading="lazy" /></section>;
 }
 
 export function PresentationPage() {
-  return <MotionConfig reducedMotion="user"><main className="florio-story"><IllustratedSection><header className="story-header"><span><Flower2 strokeWidth={1.2} /> FloraAI</span><Button asChild variant="ghost" className="story-header-link"><Link to="/inbox">Intră în atelier <ArrowRight /></Link></Button></header><div className="story-hero-content"><StoryTitle hero>FloraAI</StoryTitle><p>Un pic de ordine.<br />Un buchet de liniște.</p><EnterAtelier /></div><a href="#haosul" className="story-scroll" aria-label="Continuă la Haosul"><ArrowDown /></a><span className="story-hero-footnote">Mai mult timp pentru flori.</span></IllustratedSection><div id="haosul"><Chaos /></div><Numbers /><OrderFlow /><IllustratedSection final><div className="story-final-content"><StoryTitle>Mai mult timp pentru flori.</StoryTitle><EnterAtelier /></div><footer className="story-footer"><span>FloraAI</span><Flower2 /></footer></IllustratedSection></main></MotionConfig>;
+  return <MotionConfig reducedMotion="user"><main className="florio-story"><IllustratedSection><header className="story-header"><span><Flower2 strokeWidth={1.2} /> FloraAI</span><Button asChild variant="ghost" className="story-header-link"><Link to="/inbox">Intră în atelier <ArrowRight /></Link></Button></header><div className="story-hero-content"><StoryTitle hero>FloraAI</StoryTitle><p>Un pic de ordine.<br />Un buchet de liniște.</p><EnterAtelier /></div><a href="#floraai" className="story-scroll" aria-label="Descoperă FloraAI"><ArrowDown /></a><span className="story-hero-footnote">Mai mult timp pentru flori.</span></IllustratedSection><div id="floraai"><AboutApp /></div><AppScreens /><AppPreview /><IllustratedSection final><div className="story-final-content"><StoryTitle>Mai mult timp pentru flori.</StoryTitle><EnterAtelier /></div><footer className="story-footer"><span>FloraAI</span><Flower2 /></footer></IllustratedSection></main></MotionConfig>;
 }

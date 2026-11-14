@@ -1,4 +1,5 @@
-# Florio
+# FloraAI
+- [x] Înlocuirea secțiunilor Haosul, Cifrele și Ordinea cu prezentarea aplicației, ecranelor și Inboxului real; păstrarea florilor și animațiilor.
 - [x] Prezentare ilustrată animată la /, Inbox la /inbox, fără modificarea ecranelor existente.
 - [x] Verificarea parallaxului, navigării și afișării statice pentru mișcare redusă pe laptop și telefon.
 - [x] Animații Framer Motion pentru pagini, apariție succesivă, cifre, meniu, statusuri și barele de stoc.

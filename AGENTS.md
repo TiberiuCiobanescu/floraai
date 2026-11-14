@@ -38,3 +38,4 @@ use the editor.
 - Link follow-up messages through the shared phone-matching helper and append them without mutating orders; confirmation remains an explicit florist action.
 - Keep Framer Motion presentation helpers separate from florist state and honor reduced-motion for transforms, opacity, counters and delays; mount one shared Sonner toaster for action feedback.
 - Keep the illustrated presentation at / outside AppShell and the inbox at /inbox; retain the root florist provider so entering the presentation does not discard edits.
+- Use a captured app screenshot for the presentation preview; keep it separate from live florist state so the presentation does not alter orders or messages.
