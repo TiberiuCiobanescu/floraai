@@ -29,7 +29,7 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
       detail: expired ? `Termen: ${formatted}. Verifică posibilitatea modificării înainte de a o promite clientului.` : `Modificările pot fi discutate până la ${formatted}, cu ${limits[order.type]} ore înainte de livrare.`,
       template: expired
         ? `${greeting}\n\n${context}\n\nTermenul de modificare a fost ${formatted} și a trecut. Trebuie să verificăm dacă mai putem realiza modificarea solicitată înainte de a o confirma. Doriți să verificăm această posibilitate?`
-        : `${greeting} ${context} Termenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
+        : `${greeting}\n\n${context}\n\nTermenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
     });
   }
   const demand = new Map<StockItem, number>();
@@ -54,7 +54,7 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
     observations.push({
       kind: "unknown", title: `Stoc de verificat: ${name}`,
       detail: "Produsul nu are o corespondență directă în stoc. Verifică florile și numărul de fire necesare; disponibilitatea nu poate fi stabilită automat.",
-      template: `${greeting} ${context} Verificăm disponibilitatea florilor pentru „${name}”. Vă putem propune [completează compoziția verificată și cantitățile]. Este potrivită pentru dumneavoastră?`,
+      template: `${greeting}\n\n${context}\n\nVerificăm disponibilitatea florilor pentru „${name}”. Vă putem propune [completează compoziția verificată și cantitățile]. Este potrivită pentru dumneavoastră?`,
     });
   }
   return observations;
