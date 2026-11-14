@@ -17,7 +17,10 @@ describe("Întrebări recomandate pentru fiecare caz", () => {
   it("include cantitățile actuale pentru o modificare", () => {
     const order = initialOrders[1];
     if (!order) throw new Error("Missing modification fixture");
-    expect(recommendedClientQuestions(order, initialMessages)).toContain("Confirmați modificarea comenzii la 11 Trandafiri albi? Restul detaliilor rămân neschimbate?");
+    const question = recommendedClientQuestions(order, initialMessages).find((entry) => entry.includes("Vă rugăm să confirmați modificarea comenzii"));
+    expect(question).toContain("11 Trandafiri albi");
+    expect(question).toContain("Mihai Ionescu");
+    expect(question).toContain("Ioana Ionescu");
   });
   it("recomandă clarificări specifice nunții fără a cere bilețel", () => {
     const questions = recommendedClientQuestions({ ...bouquet, type: "Nuntă", note: "" }, []);

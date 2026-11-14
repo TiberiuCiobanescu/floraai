@@ -343,7 +343,11 @@ export function OrderDetail({ id }: { id: string }) {
                   onClick={() => setQuestion(recommendation)}
                 >
                   <Plus className="shrink-0" />
-                  {recommendation}
+                  {recommendation.includes("Vă rugăm să confirmați modificarea comenzii")
+                    ? "Confirmarea modificării comenzii"
+                    : recommendation.includes("Vă rugăm să confirmați livrarea")
+                      ? "Confirmarea livrării"
+                      : recommendation}
                 </Button>
               ))}
             </div>
