@@ -129,7 +129,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const presentation = useRouterState({ select: (state) => state.location.pathname === "/" });
+  const presentation = useRouterState({ select: (state) => state.matches.at(-1)?.pathname === "/" });
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -32,7 +32,7 @@ const items = [
 ];
 export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const pathname = useRouterState({ select: (s) => s.matches.at(-1)?.pathname ?? "/" });
   const { messages } = useFlorist();
   const unread = messages.filter((m) => textEquals(m.status, "Nou")).length;
   const reduced = useReducedMotion();
