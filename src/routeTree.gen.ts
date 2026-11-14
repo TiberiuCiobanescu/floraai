@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ComenziRouteImport } from './routes/comenzi'
+import { Route as InboxRouteImport } from './routes/inbox'
 import { Route as SetariRouteImport } from './routes/setari'
 import { Route as StocRouteImport } from './routes/stoc'
 import { Route as ComenziIdRouteImport } from './routes/comenzi_.$id'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const ComenziRoute = ComenziRouteImport.update({
   id: '/comenzi',
   path: '/comenzi',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InboxRoute = InboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SetariRoute = SetariRouteImport.update({
@@ -44,6 +50,7 @@ const ComenziIdRoute = ComenziIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/comenzi': typeof ComenziRoute
+  '/inbox': typeof InboxRoute
   '/setari': typeof SetariRoute
   '/stoc': typeof StocRoute
   '/comenzi/$id': typeof ComenziIdRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/comenzi': typeof ComenziRoute
+  '/inbox': typeof InboxRoute
   '/setari': typeof SetariRoute
   '/stoc': typeof StocRoute
   '/comenzi/$id': typeof ComenziIdRoute
@@ -59,21 +67,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/comenzi': typeof ComenziRoute
+  '/inbox': typeof InboxRoute
   '/setari': typeof SetariRoute
   '/stoc': typeof StocRoute
   '/comenzi_/$id': typeof ComenziIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/comenzi' | '/setari' | '/stoc' | '/comenzi/$id'
+  fullPaths: '/' | '/comenzi' | '/inbox' | '/setari' | '/stoc' | '/comenzi/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/comenzi' | '/setari' | '/stoc' | '/comenzi/$id'
-  id: '__root__' | '/' | '/comenzi' | '/setari' | '/stoc' | '/comenzi_/$id'
+  to: '/' | '/comenzi' | '/inbox' | '/setari' | '/stoc' | '/comenzi/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/comenzi'
+    | '/inbox'
+    | '/setari'
+    | '/stoc'
+    | '/comenzi_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ComenziRoute: typeof ComenziRoute
+  InboxRoute: typeof InboxRoute
   SetariRoute: typeof SetariRoute
   StocRoute: typeof StocRoute
   ComenziIdRoute: typeof ComenziIdRoute
@@ -93,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/comenzi'
       fullPath: '/comenzi'
       preLoaderRoute: typeof ComenziRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inbox': {
+      id: '/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof InboxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/setari': {
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ComenziRoute: ComenziRoute,
+  InboxRoute: InboxRoute,
   SetariRoute: SetariRoute,
   StocRoute: StocRoute,
   ComenziIdRoute: ComenziIdRoute,

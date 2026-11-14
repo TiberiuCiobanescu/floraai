@@ -1,4 +1,6 @@
 # Florio
+- [x] Prezentare ilustrată animată la /, Inbox la /inbox, fără modificarea ecranelor existente.
+- [x] Verificarea parallaxului, navigării și afișării statice pentru mișcare redusă pe laptop și telefon.
 - [x] Animații Framer Motion pentru pagini, apariție succesivă, cifre, meniu, statusuri și barele de stoc.
 - [x] Feedback toast, efecte discrete la interacțiune și verificare cu mișcare redusă, fără modificarea logicii sau datelor.
 - [x] Înlocuirea numelui, mesaje Completare/Confirmare legate după telefon și filtrul de tipuri.

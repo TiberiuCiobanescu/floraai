@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -103,6 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;700;800&display=swap",
       },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" },
     ],
   }),
   shellComponent: RootShell,
@@ -127,13 +129,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const presentation = useRouterState({ select: (state) => state.location.pathname === "/" });
 
   return (
     <QueryClientProvider client={queryClient}>
       <FloristProvider>
-        <AppShell>
+        {presentation ? <Outlet /> : <AppShell>
           <Outlet />
-        </AppShell>
+        </AppShell>}
       </FloristProvider>
     </QueryClientProvider>
   );

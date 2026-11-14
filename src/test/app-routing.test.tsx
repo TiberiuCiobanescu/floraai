@@ -14,4 +14,9 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+  it("keeps presentation and inbox on distinct routes", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    expect(router.matchRoutes("/").at(-1)?.routeId).toBe("/");
+    expect(router.matchRoutes("/inbox").at(-1)?.routeId).toBe("/inbox");
+  });
 });

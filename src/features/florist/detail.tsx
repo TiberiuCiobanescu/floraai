@@ -64,7 +64,7 @@ export function OrderDetail({ id }: { id: string }) {
   }
   return (
     <>
-      <Link to="/" className="back-link">
+      <Link to="/inbox" className="back-link">
         <ArrowLeft size={16} />
         Înapoi la Inbox
       </Link>

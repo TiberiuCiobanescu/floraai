@@ -25,7 +25,7 @@ import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 import { useEntrance } from "./motion";
 const items = [
-  { label: "Inbox", to: "/" as const, icon: Inbox },
+  { label: "Inbox", to: "/inbox" as const, icon: Inbox },
   { label: "Comenzi", to: "/comenzi" as const, icon: ClipboardList },
   { label: "Stoc", to: "/stoc" as const, icon: Sprout },
   { label: "Setări", to: "/setari" as const, icon: Settings2 },
@@ -42,7 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <MotionConfig reducedMotion="user">
     <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
       <aside className="app-sidebar">
-        <Link to="/" className="brand">
+        <Link to="/inbox" className="brand">
           <Flower2 strokeWidth={1.4} />
           <span>
             FloraAI<span className="brand-subtitle">ASISTENTUL FLORĂRIEI TALE</span>
@@ -77,7 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link to={item.to}>
                 <item.icon size={19} />
                 <span>{item.label}</span>
-                {item.to === "/" && unread > 0 && <b className="nav-count">{unread}</b>}
+                {item.to === "/inbox" && unread > 0 && <b className="nav-count">{unread}</b>}
               </Link>
             </Button>
           ))}
