@@ -1,4 +1,6 @@
-# NUME
+# Florio
+- [x] Înlocuirea numelui, mesaje Completare/Confirmare legate după telefon și filtrul de tipuri.
+- [x] Verificarea cerințelor existente, testelor și fluxului manual de confirmare, fără schimbări de design.
 - [x] Comparații comune fără diacritice pentru căutări și filtre, cu păstrarea textului original și verificarea editării/salvării.
 - [x] Ecranele Inbox, detaliu comandă, Comenzi, Stoc și Setări, cu date fictive și acțiuni locale.
 - [x] Verificarea navigării, editării comenzilor și setărilor pe laptop și telefon.

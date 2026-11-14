@@ -23,6 +23,7 @@ export function InboxPage() {
   const [tab, setTab] = useState("Toate mesajele");
   const [search, setSearch] = useState("");
   const [channel, setChannel] = useState("Toate canalele");
+  const [messageType, setMessageType] = useState("Toate tipurile");
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [source, setSource] = useState<"Fizic" | "Telefon">("Fizic");
@@ -36,9 +37,10 @@ export function InboxPage() {
         (m) =>
           (textEquals(tab, "Toate mesajele") || textEquals(m.status, tab)) &&
           (textEquals(channel, "Toate canalele") || textEquals(m.channel, channel)) &&
+          (textEquals(messageType, "Toate tipurile") || textEquals(m.type, messageType)) &&
           textIncludes(`${m.client} ${m.text}`, search),
       ),
-    [messages, tab, channel, search],
+    [messages, tab, channel, messageType, search],
   );
   function create() {
     if (!normalizeText(text)) return;
@@ -62,6 +64,7 @@ export function InboxPage() {
       id: `m${Date.now()}`,
       orderId: id,
       client: order.client,
+      phone: order.phone,
       time: "12:00",
       received: "2026-11-14T12:00:00",
       text,
@@ -179,6 +182,18 @@ export function InboxPage() {
                 <option>WhatsApp</option>
                 <option>Telefon</option>
                 <option>Fizic</option>
+              </select>
+            </label>
+            <label className="filter-select">
+              <SlidersHorizontal size={15} />
+              <select
+                value={messageType}
+                onChange={(e) => setMessageType(e.target.value)}
+                aria-label="Tipul mesajelor"
+              >
+                {["Toate tipurile", "Comandă nouă", "Modificare", "Întrebare de preț", "Altceva", "Completare", "Confirmare"].map((type) => (
+                  <option key={type}>{type}</option>
+                ))}
               </select>
             </label>
           </div>

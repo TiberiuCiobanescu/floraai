@@ -438,6 +438,10 @@ select {
   background: var(--muted);
   color: var(--muted-foreground);
 }
+.lilac {
+  background: var(--lilac-soft);
+  color: var(--lilac-ink);
+}
 .alert-band {
   display: flex;
   gap: 10px;
@@ -497,6 +501,7 @@ select {
 }
 .inbox-controls {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
   align-items: center;
@@ -527,6 +532,9 @@ select {
   display: flex;
   gap: 9px;
   align-items: center;
+}
+.inbox-controls .search-controls {
+  flex-wrap: wrap;
 }
 .search-field {
   display: flex;

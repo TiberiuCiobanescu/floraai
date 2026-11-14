@@ -153,9 +153,9 @@ export function OrderDetail({ id }: { id: string }) {
                 { key: "phone", label: "Telefon" },
               ] as const
             ).map((f) => (
-              <label className={`field ${!order[f.key] ? "missing-field" : ""}`} key={f.key}>
+              <label className={`field ${missing.includes(f.key) ? "missing-field" : ""}`} key={f.key}>
                 {f.label}
-                {!order[f.key] && <span>lipsește</span>}
+                {missing.includes(f.key) && <span>lipsește</span>}
                 <input value={order[f.key]} onChange={(e) => change(f.key, e.target.value)} />
               </label>
             ))}
@@ -171,7 +171,7 @@ export function OrderDetail({ id }: { id: string }) {
                 <option>Nuntă</option>
               </select>
             </label>
-            <div className="field full-width">
+            <div className={`field full-width ${missingProduct ? "missing-field" : ""}`}>
               Produse{missingProduct && <span className="text-destructive">lipsește</span>}
               {order.products.map((p, i) => (
                 <div className="product-input-row" key={i}>
@@ -265,13 +265,13 @@ export function OrderDetail({ id }: { id: string }) {
               ] as const
             ).map((f) => (
               <label
-                className={`field full-width ${!order[f.key] ? "missing-field" : ""}`}
+                className={`field full-width ${missing.includes(f.key) ? "missing-field" : ""}`}
                 key={f.key}
               >
                 {f.label}
-                {!order[f.key] && <span>lipsește</span>}
+                {missing.includes(f.key) && <span>lipsește</span>}
                 <input
-                  placeholder={!order[f.key] ? "Completează acest detaliu" : ""}
+                  placeholder={missing.includes(f.key) ? "Completează acest detaliu" : ""}
                   value={order[f.key]}
                   onChange={(e) => change(f.key, e.target.value)}
                 />

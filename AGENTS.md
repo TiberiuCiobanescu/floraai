@@ -35,3 +35,4 @@ use the editor.
 - Keep independent content routes for inbox, orders, order detail, inventory, and settings; order detail is un-nested so it does not render inside the orders table.
 - Define florist visual styles and semantic colors in the global design system so every screen uses a consistent palette.
 - Use the shared text normalization helpers for human-text comparisons only; keep original input in state and display, and compare IDs and route paths literally.
+- Link follow-up messages through the shared phone-matching helper and append them without mutating orders; confirmation remains an explicit florist action.

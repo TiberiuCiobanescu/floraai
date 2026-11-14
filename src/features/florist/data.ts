@@ -23,6 +23,7 @@ export type Message = {
   id: string;
   orderId: string;
   client: string;
+  phone: string;
   time: string;
   received: string;
   text: string;
@@ -134,6 +135,7 @@ export const initialMessages: Message[] = [
     id: "m1",
     orderId: "1001",
     client: "Andreea Popescu",
+    phone: "0722 345 678",
     time: "08:32",
     received: "2026-11-14T08:32:00",
     text: "Bună dimineața! Aș dori un buchet de 15 trandafiri roșii pentru mama mea, Maria. Se poate livra azi între 15:00 și 17:00? Pe bilețel: „La mulți ani, mama! Cu drag, Andreea”. Mulțumesc! 🌷",
@@ -145,6 +147,7 @@ export const initialMessages: Message[] = [
     id: "m2",
     orderId: "1002",
     client: "Mihai Ionescu",
+    phone: "0744 123 456",
     time: "08:45",
     received: "2026-11-14T08:45:00",
     text: "Bună! Aș vrea să schimb buchetul de azi: 11 trandafiri albi în loc de 9. Restul detaliilor rămân la fel. Mulțumesc!",
@@ -156,6 +159,7 @@ export const initialMessages: Message[] = [
     id: "m3",
     orderId: "1003",
     client: "Elena Dumitrescu",
+    phone: "0733 987 654",
     time: "09:10",
     received: "2026-11-14T09:10:00",
     text: "Bună ziua! Ne pregătim pentru nunta din 21 noiembrie. Ne puteți spune un preț pentru un aranjament de mireasă și 12 aranjamente de masă cu flori albe și eucalipt?",
@@ -167,6 +171,7 @@ export const initialMessages: Message[] = [
     id: "m4",
     orderId: "1004",
     client: "Alexandru Stan",
+    phone: "0755 234 567",
     time: "10:24",
     received: "2026-11-14T10:24:00",
     text: "Confirm buchetul mixt pentru Raluca, astăzi la adresa de pe Unirii. Arată minunat, mulțumesc mult!",
@@ -178,6 +183,7 @@ export const initialMessages: Message[] = [
     id: "m5",
     orderId: "1005",
     client: "Ioana Marinescu",
+    phone: "0728 456 789",
     time: "10:48",
     received: "2026-11-14T10:48:00",
     text: "Aș dori 21 de frezii albe pentru mâine dimineață. Adresa este Strada Paris 18, pentru Ana Marinescu.",
@@ -189,6 +195,7 @@ export const initialMessages: Message[] = [
     id: "m6",
     orderId: "1006",
     client: "Cristina Radu",
+    phone: "0766 321 098",
     time: "11:05",
     received: "2026-11-14T11:05:00",
     text: "Am primit buchetul de gerbera! Este superb. Vă mulțumesc și o zi frumoasă! 💐",
@@ -200,6 +207,7 @@ export const initialMessages: Message[] = [
     id: "m7",
     orderId: "1004",
     client: "Alexandru Stan",
+    phone: "0755 234 567",
     time: "11:32",
     received: "2026-11-14T11:32:00",
     text: "Am trecut prin florărie și am ales ambalajul roz pentru buchet. Rămâne livrarea la 16:00.",
@@ -207,7 +215,44 @@ export const initialMessages: Message[] = [
     type: "Modificare",
     status: "Confirmat",
   },
+  ...[
+    {
+      id: "m8",
+      client: "Andreea Popescu",
+      phone: "0722 345 678",
+      time: "11:40",
+      received: "2026-11-14T11:40:00",
+      text: "Adresa de livrare este Strada Florilor 24, București, apartamentul 8.",
+      channel: "WhatsApp" as const,
+      type: "Completare",
+      status: "Nou",
+    },
+    {
+      id: "m9",
+      client: "Andreea Popescu",
+      phone: "0722 345 678",
+      time: "11:50",
+      received: "2026-11-14T11:50:00",
+      text: "Da, e perfect, mulțumesc!",
+      channel: "WhatsApp" as const,
+      type: "Confirmare",
+      status: "Nou",
+    },
+  ].flatMap((message) => {
+    const linked = linkMessageToOrder(message, initialOrders);
+    return linked ? [linked] : [];
+  }),
 ];
+// Phone matching ignores formatting only; never normalize or rewrite the saved input.
+export function linkMessageToOrder(
+  message: Omit<Message, "orderId">,
+  orders: Order[],
+): Message | undefined {
+  const phone = message.phone.replace(/\D/g, "");
+  if (!phone) return undefined;
+  const order = orders.find((candidate) => candidate.phone.replace(/\D/g, "") === phone);
+  return order ? { ...message, orderId: order.id } : undefined;
+}
 export const initialStock = [
   { name: "Trandafir roșu", quantity: 45, threshold: 50 },
   { name: "Trandafir alb", quantity: 82, threshold: 25 },

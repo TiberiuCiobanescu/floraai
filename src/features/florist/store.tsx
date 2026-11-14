@@ -4,6 +4,7 @@ import {
   initialMessages,
   initialStock,
   initialLimits,
+  linkMessageToOrder,
   type Order,
   type Message,
 } from "./data";
@@ -20,6 +21,12 @@ function useFloristState() {
     setOrders((prev) => [...prev, order]);
     setMessages((prev) => [message, ...prev]);
   };
+  const addMessage = (message: Omit<Message, "orderId">) => {
+    const linked = linkMessageToOrder(message, orders);
+    if (!linked) return false;
+    setMessages((prev) => [...prev, linked]);
+    return true;
+  };
   return {
     orders,
     messages,
@@ -30,6 +37,7 @@ function useFloristState() {
     updateOrder,
     updateMessage,
     addOrder,
+    addMessage,
   };
 }
 type FloristValue = ReturnType<typeof useFloristState>;

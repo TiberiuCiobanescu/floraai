@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Link to="/" className="brand">
           <Flower2 strokeWidth={1.4} />
           <span>
-            NUME<span className="brand-subtitle">ASISTENTUL FLORĂRIEI TALE</span>
+            Florio<span className="brand-subtitle">ASISTENTUL FLORĂRIEI TALE</span>
           </span>
         </Link>
         <div className="workspace">
@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <footer className="page-footer">
           <span>Cu grijă pentru fiecare comandă.</span>
           <Flower2 size={15} />
-          <span>NUME · Atelierul tău, în ordine</span>
+          <span>Florio · Atelierul tău, în ordine</span>
         </footer>
       </div>
     </div>
@@ -159,6 +159,8 @@ export function StatusBadge({ value }: { value: string }) {
   if (["Așteaptă clientul", "În lucru", "Modificare"].some((status) => textEquals(status, value)))
     tone = "amber";
   if (textEquals(value, "Comandă nouă")) tone = "green";
+  if (textEquals(value, "Completare")) tone = "lilac";
+  if (textEquals(value, "Confirmare")) tone = "rose";
   return (
     <span className={`status-badge ${tone}`}>
       <span />
@@ -191,9 +193,9 @@ export const icons = { ArrowUpRight, CircleCheck, Clock3 };
 export function pageHead(title: string, description: string) {
   return {
     meta: [
-      { title: `${title} · NUME` },
+      { title: `${title} · Florio` },
       { name: "description", content: description },
-      { property: "og:title", content: `${title} · NUME` },
+      { property: "og:title", content: `${title} · Florio` },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
