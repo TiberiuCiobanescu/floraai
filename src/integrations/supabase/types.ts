@@ -280,7 +280,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      aplica_extragere_comanda: {
+        Args: {
+          p_comanda: string
+          p_mesaje: string[]
+          p_rezultat: Json
+          p_versiune: number
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
