@@ -44,5 +44,6 @@ use the editor.
 - Keep florist identity edits in shared demo state, separate from the user profile; the workspace menu opens an explicit save/cancel editor without adding multiple workspaces.
 - Sort Inbox views using full received timestamps on a copied message list, so filters remain newest-first without mutating shared data.
 - Derive client-question suggestions locally from the editable order and latest linked message; selecting a suggestion only changes the editable question, never sends or confirms an order.
+- Represent recommended questions with explicit short labels and personalized templates rather than inferring labels from message text; all applicable question types fill the same editable composer.
 - Derive order observations from saved deadline settings and current stock using explicit flower aliases and summed stem demand; unknown bouquet recipes require manual checking, and WhatsApp templates remain editable simulated messages without stock reservations or automatic substitutions.
 - Show deadline and stock templates as separate choices within recommended client questions, not additional message editors; each selection fills the existing editable WhatsApp question with current client, recipient, delivery and product details.

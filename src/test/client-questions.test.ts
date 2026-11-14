@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { recommendedClientQuestions } from "@/features/florist/client-questions";
+import { clientQuestionOptions, recommendedClientQuestions } from "@/features/florist/client-questions";
 import { initialMessages, initialOrders } from "@/features/florist/data";
 
 const bouquet = initialOrders[0];
@@ -7,12 +7,12 @@ if (!bouquet) throw new Error("Missing bouquet fixture");
 
 describe("Întrebări recomandate pentru fiecare caz", () => {
   it("adaptează recomandările când se completează adresa", () => {
-    expect(recommendedClientQuestions(bouquet, [])).toContain("Ne puteți trimite adresa completă de livrare?");
-    expect(recommendedClientQuestions({ ...bouquet, address: "Strada Florilor 24" }, [])).not.toContain("Ne puteți trimite adresa completă de livrare?");
+    expect(clientQuestionOptions(bouquet, []).some((entry) => entry.label === "Adresa de livrare")).toBe(true);
+    expect(clientQuestionOptions({ ...bouquet, address: "Strada Florilor 24" }, []).some((entry) => entry.label === "Adresa de livrare")).toBe(false);
   });
   it("folosește ultimul mesaj al comenzii, nu al altui client", () => {
-    expect(recommendedClientQuestions(bouquet, initialMessages)).toContain("Confirmați că toate detaliile din rezumatul comenzii sunt corecte?");
-    expect(recommendedClientQuestions(bouquet, initialMessages)).not.toContain("Mulțumim pentru completare! Mai sunt și alte detalii pe care doriți să le adăugați comenzii?");
+    expect(clientQuestionOptions(bouquet, initialMessages).some((entry) => entry.label === "Confirmarea detaliilor comenzii")).toBe(true);
+    expect(clientQuestionOptions(bouquet, initialMessages).some((entry) => entry.label === "Completarea detaliilor")).toBe(false);
   });
   it("include cantitățile actuale pentru o modificare", () => {
     const order = initialOrders[1];
@@ -23,11 +23,13 @@ describe("Întrebări recomandate pentru fiecare caz", () => {
     expect(question).toContain("Ioana Ionescu");
   });
   it("recomandă clarificări specifice nunții fără a cere bilețel", () => {
-    const questions = recommendedClientQuestions({ ...bouquet, type: "Nuntă", note: "" }, []);
-    expect(questions).toContain("Ce buget aveți în vedere pentru aranjamentele de nuntă?");
-    expect(questions).not.toContain("Doriți să adăugăm un mesaj pe bilețel? Ce text să scriem?");
+    const questions = clientQuestionOptions({ ...bouquet, type: "Nuntă", note: "" }, []);
+    expect(questions.some((entry) => entry.label === "Bugetul pentru nuntă")).toBe(true);
+    expect(questions.some((entry) => entry.label === "Textul bilețelului")).toBe(false);
   });
   it("pentru o comandă livrată cere feedback, nu reconfirmarea livrării", () => {
-    expect(recommendedClientQuestions({ ...bouquet, status: "Livrată", address: "Strada Florilor" }, [])).toEqual(["Buchetul a ajuns în regulă? Cum vi s-a părut?"]);
+    const questions = clientQuestionOptions({ ...bouquet, status: "Livrată", address: "Strada Florilor" }, []);
+    expect(questions).toHaveLength(1);
+    expect(questions.some((entry) => entry.label === "Feedback după livrare")).toBe(true);
   });
 });

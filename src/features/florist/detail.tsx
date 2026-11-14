@@ -9,7 +9,7 @@ import { normalizeText, textEquals } from "@/lib/normalize-text";
 import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
-import { recommendedClientQuestions } from "./client-questions";
+import { clientQuestionOptions, recommendedClientQuestions } from "./client-questions";
 import { orderObservations } from "./order-observations";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
@@ -30,7 +30,7 @@ export function OrderDetail({ id }: { id: string }) {
     );
   const order = draft;
   const observations = orderObservations(order, stock, limits, DEMO_NOW, messages);
-  const recommendations = recommendedClientQuestions(order, messages);
+  const recommendations = clientQuestionOptions(order, messages);
   const message = messages.find((m) => m.orderId === id);
   const deadline = modificationDeadline(order, limits);
   const expired = deadline < DEMO_NOW;
@@ -337,17 +337,13 @@ export function OrderDetail({ id }: { id: string }) {
               ))}
               {recommendations.map((recommendation) => (
                 <Button
-                  key={recommendation}
+                  key={recommendation.label}
                   variant="outline"
                   className="h-auto max-w-full justify-start whitespace-normal text-left text-xs"
-                  onClick={() => setQuestion(recommendation)}
+                  onClick={() => setQuestion(recommendation.template)}
                 >
                   <Plus className="shrink-0" />
-                  {recommendation.includes("Vă rugăm să confirmați modificarea comenzii")
-                    ? "Confirmarea modificării comenzii"
-                    : recommendation.includes("Vă rugăm să confirmați livrarea")
-                      ? "Confirmarea livrării"
-                      : recommendation}
+                  {recommendation.label}
                 </Button>
               ))}
             </div>
