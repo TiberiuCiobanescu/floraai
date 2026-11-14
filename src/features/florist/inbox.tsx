@@ -20,6 +20,7 @@ import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
 import { normalizeText, textEquals, textIncludes } from "@/lib/normalize-text";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedCount, useEntrance } from "./motion";
+import { newestMessagesFirst } from "./message-order";
 const MessageLink = forwardRef<HTMLAnchorElement, { orderId: string; className: string; children: ReactNode }>(
   ({ orderId, ...props }, ref) => <Link ref={ref} to="/comenzi/$id" params={{ id: orderId }} {...props} />,
 );
@@ -41,13 +42,13 @@ export function InboxPage() {
   const overdue = messages.filter(isOverdue).length;
   const filtered = useMemo(
     () =>
-      messages.filter(
+      newestMessagesFirst(messages.filter(
         (m) =>
           (textEquals(tab, "Toate mesajele") || textEquals(m.status, tab)) &&
           (textEquals(channel, "Toate canalele") || textEquals(m.channel, channel)) &&
           (textEquals(messageType, "Toate tipurile") || textEquals(m.type, messageType)) &&
           textIncludes(`${m.client} ${m.text}`, search),
-      ),
+      )),
     [messages, tab, channel, messageType, search],
   );
   function create() {
