@@ -161,6 +161,10 @@ select {
 }
 .workspace {
   display: flex;
+  width: 100%;
+  height: auto;
+  white-space: normal;
+  text-align: left;
   gap: 10px;
   align-items: center;
   margin: 34px 0 32px;
@@ -170,6 +174,7 @@ select {
   background: var(--card);
 }
 .workspace-icon {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   width: 33px;
@@ -180,6 +185,8 @@ select {
 }
 .workspace-copy {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .workspace-copy strong {
   display: block;

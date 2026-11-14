@@ -6,7 +6,6 @@ import {
   Settings2,
   PanelLeftClose,
   PanelLeftOpen,
-  ChevronDown,
   ArrowUpRight,
   MessageCircle,
   Phone,
@@ -25,6 +24,7 @@ import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 import { Toaster } from "@/components/ui/sonner";
 import { useEntrance } from "./motion";
 import { ProfileEditor } from "./profile";
+import { WorkspaceEditor } from "./workspace";
 const items = [
   { label: "Inbox", to: "/inbox" as const, icon: Inbox },
   { label: "Comenzi", to: "/comenzi" as const, icon: ClipboardList },
@@ -49,16 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             FloraAI<span className="brand-subtitle">ASISTENTUL FLORĂRIEI TALE</span>
           </span>
         </Link>
-        <div className="workspace">
-          <div className="workspace-icon">
-            <Flower2 size={19} />
-          </div>
-          <div className="workspace-copy">
-            <strong>Atelier de flori</strong>
-            <small>București, România</small>
-          </div>
-          <ChevronDown size={15} />
-        </div>
+        <WorkspaceEditor />
         <div className="nav-label">ATELIERUL TĂU</div>
         <nav>
           <motion.i

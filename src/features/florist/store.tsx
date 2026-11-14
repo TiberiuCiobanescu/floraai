@@ -14,6 +14,7 @@ function useFloristState() {
   const [stock, setStock] = useState(initialStock);
   const [limits, setLimits] = useState(initialLimits);
   const [profile, setProfile] = useState({ name: "Atelierul meu", description: "Florărie independentă", initials: "AZ" });
+  const [workspace, setWorkspace] = useState({ name: "Atelier de flori", location: "București, România" });
   const updateOrder = (order: Order) =>
     setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
   const updateMessage = (orderId: string, status: string) =>
@@ -35,6 +36,8 @@ function useFloristState() {
     limits,
     profile,
     setProfile,
+    workspace,
+    setWorkspace,
     setStock,
     setLimits,
     updateOrder,
