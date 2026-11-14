@@ -1,7 +1,7 @@
 # FloraAI
-- [ ] Recomandări AI cu stoc și ultimul răspuns al florăriei; fără creare/modificare de comenzi pentru cererile de recomandare.
-- [ ] Nume client extras numai explicit și numai pentru numele implicit; editor cu creion în simulator și Detaliu, actualizare peste tot.
-- [ ] Teste locale și verificări fără scrieri automate în baza de date.
+- [x] Recomandări AI cu stoc și ultimul răspuns al florăriei; fără creare/modificare de comenzi pentru cererile de recomandare. Funcția instalată, fluxul cu mesaje noi rămâne pentru testarea manuală a utilizatorului.
+- [x] Nume client extras numai explicit și numai pentru numele implicit; editor cu creion în simulator și Detaliu, actualizare peste tot prin datele comune.
+- [x] 78 teste locale trecute; editor verificat pe laptop/telefon și în Detaliu, fără salvări sau mesaje de test în bază.
 - [x] Simulator WhatsApp cu răspunsuri automate, validare/respingere de către florar, Inbox doar pentru clienți și Realtime; interfață verificată pe laptop și telefon, fără scrieri automate de test.
 - [x] La modificări după termen, răspuns fix fără intrebare_client; conversații ordonate după ID-ul inserării, nu după ora demo, cu test local M9/M10/M11.
 - [x] Calculul termenului de la 08:00 în ziua livrării când intervalul lipsește, inclusiv la procesarea mesajelor; verificat în Comenzi și Detaliu pe o comandă reală, fără scrieri de test în bază.

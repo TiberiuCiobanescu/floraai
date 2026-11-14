@@ -42,6 +42,17 @@ export const getFloristData = createServerFn({ method: "GET" }).handler(async ()
   return mapFloristRows({ produse, stoc, clienti, livrari_furnizor, termene, comenzi, linii_comanda, mesaje });
 });
 export type FloristData = Awaited<ReturnType<typeof getFloristData>>;
+export const clientNameSchema = z.object({
+  phone: z.string().min(1).max(30),
+  name: z.string().min(1).max(200).refine(value => value.trim().length > 0, "Completează numele clientului."),
+});
+export const saveClientName = createServerFn({ method: "POST" })
+  .inputValidator(clientNameSchema)
+  .handler(async ({ data }) => {
+    const { data: saved, error } = await databaseClient().from("clienti").update({ nume: data.name }).eq("telefon", data.phone).select("telefon,nume").single();
+    if (error || !saved) throw new Error("Numele clientului nu a putut fi salvat.");
+    return { phone: saved.telefon, name: saved.nume };
+  });
 const executionResultSchema = z.object({
   ok: z.boolean(),
   shortages: z.array(z.object({ flower: z.string(), missing: z.number().int().positive() })),

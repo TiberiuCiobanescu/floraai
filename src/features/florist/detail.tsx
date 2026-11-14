@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, Send, Plus, Trash2, Save, History, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,16 +17,21 @@ import { editableMissingFields } from "./extraction-rules";
 import { ConversationBubbles } from "./conversation";
 import { OrderValidation } from "./order-validation";
 import { phoneKey } from "./whatsapp";
+import { ClientNameEditor } from "./client-name-editor";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { orders, messages, stock, limits, catalog, updateOrder, updateMessage } = useFlorist();
+  const { orders, messages, stock, limits, catalog, clients, updateOrder, updateMessage } = useFlorist();
   const original = orders.find((o) => o.id === id);
   const [draft, setDraft] = useState<Order | undefined>(original);
   const [notice, setNotice] = useState("");
   const [question, setQuestion] = useState(() =>
     original ? original.question || recommendedClientQuestions(original, messages)[0] || "" : "",
   );
+  const savedClientName = clients.find(client => client.phone === draft?.phone)?.name;
+  useEffect(() => {
+    if (savedClientName !== undefined) setDraft(current => current && current.client !== savedClientName ? { ...current, client: savedClientName } : current);
+  }, [savedClientName]);
   if (!draft)
     return (
       <>
@@ -108,6 +113,7 @@ export function OrderDetail({ id }: { id: string }) {
         description={`${dateLabel(order.date)} · ${order.time}`}
         actions={
           <>
+            <ClientNameEditor phone={order.phone} name={savedClientName ?? order.client} onSaved={name => change("client", name)} />
             <StatusBadge value={order.status} />
             <Button variant="outline" disabled={settled} onClick={() => save()}>
               <Save />

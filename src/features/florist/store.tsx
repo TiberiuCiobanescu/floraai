@@ -3,7 +3,7 @@ import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { floristQueryOptions } from "./database-query";
-import { executeFloristOrder, rejectFloristOrder, saveFloristOrder, saveFloristSettings, saveMessageStatus, validateFloristOrder } from "./database.functions";
+import { executeFloristOrder, rejectFloristOrder, saveClientName, saveFloristOrder, saveFloristSettings, saveMessageStatus, validateFloristOrder } from "./database.functions";
 import { toast } from "sonner";
 import type { Order } from "./data";
 function useFloristState() {
@@ -15,6 +15,7 @@ function useFloristState() {
   const executeOrderFn = useServerFn(executeFloristOrder);
   const validateOrderFn = useServerFn(validateFloristOrder);
   const rejectOrderFn = useServerFn(rejectFloristOrder);
+  const saveClientNameFn = useServerFn(saveClientName);
   const [profile, setProfile] = useState({ name: "Atelierul meu", description: "Florărie independentă", initials: "AZ" });
   const [workspace, setWorkspace] = useState({ name: "Atelier de flori", location: "București, România" });
   async function refresh() {
@@ -23,6 +24,16 @@ function useFloristState() {
   async function updateOrder(order: Order) {
     try { await saveOrder({ data: order }); await refresh(); return true; }
     catch (error) { toast.error(error instanceof Error ? error.message : "Comanda nu a fost salvată."); return false; }
+  }
+  async function updateClientName(phone: string, name: string) {
+    try {
+      await saveClientNameFn({ data: { phone, name } });
+      await refresh();
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Numele clientului nu a putut fi salvat.");
+      return false;
+    }
   }
   async function executeOrder(order: Order) {
     try {
@@ -84,7 +95,7 @@ function useFloristState() {
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [queryClient]);
-  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, executeOrder, validateOrder, rejectOrder, updateMessage, saveSettings, refresh };
+  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateClientName, executeOrder, validateOrder, rejectOrder, updateMessage, saveSettings, refresh };
 }
 type FloristValue = ReturnType<typeof useFloristState>;
 // An open preview can retain the old provider while a route receives the refreshed hook.

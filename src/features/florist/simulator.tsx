@@ -10,6 +10,7 @@ import { sendSimulatorMessage } from "./extraction.functions";
 import { processExtraction } from "./extraction-client";
 import { phoneKey, validPhone } from "./whatsapp";
 import { normalizeText } from "@/lib/normalize-text";
+import { ClientNameEditor } from "./client-name-editor";
 
 export function SimulatorPage() {
   const { clients, messages, refresh } = useFlorist();
@@ -20,7 +21,7 @@ export function SimulatorPage() {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const conversationEnd = useRef<HTMLDivElement>(null);
-  const selectedClient = clients.find((client) => client.phone === selection);
+  const selectedClient = clients.find((client) => client.phone === (selection === "new" ? newPhone.trim() : selection));
   const phone = selectedClient?.phone ?? newPhone;
   const conversation = useMemo(
     () => messages.filter((message) => validPhone(message.phone) && validPhone(phone) && phoneKey(message.phone) === phoneKey(phone)),
@@ -86,6 +87,7 @@ export function SimulatorPage() {
           <header className="whatsapp-header">
             <span className="client-avatar avatar-1">{(selectedClient?.name ?? "CN").split(" ").map((part) => part[0]).slice(0, 2).join("")}</span>
             <div><strong>{selectedClient?.name ?? "Client nou"}</strong><small>{phone}</small></div>
+            {selectedClient && <ClientNameEditor phone={selectedClient.phone} name={selectedClient.name} disabled={busy} />}
             <span className="online-dot" />
           </header>
           <div className="whatsapp-conversation">
