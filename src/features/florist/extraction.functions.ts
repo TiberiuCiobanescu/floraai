@@ -14,7 +14,8 @@ export const prepareExtraction = createServerFn({ method: "POST" })
     const pending: (typeof existing[number])[] = [];
     let skipped = 0;
     for (const message of incoming) {
-      const savedPhone = clients.find(c => phoneKey(c.telefon) === phoneKey(message.telefon))?.telefon ?? message.telefon;
+      const savedPhone = clients.find(c => phoneKey(c.telefon) === phoneKey(message.telefon))?.telefon ?? `+${phoneKey(message.telefon)}`;
+      if (!/^\+40\d{9}$/.test(savedPhone)) throw new Error("Baza echipei acceptă telefoane românești: 07… sau +40….");
       const duplicate = existing.find(m => phoneKey(m.telefon) === phoneKey(savedPhone) && m.ora.replace("T", " ").slice(0,19) === message.ora && m.text === message.text && m.canal?.toLowerCase() === data.channel.toLowerCase());
       if (duplicate) {
         if (!duplicate.tip_mesaj && duplicate.status === "nou") pending.push(duplicate);

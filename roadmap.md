@@ -1,11 +1,11 @@
 # FloraAI
-- [ ] Import WhatsApp cu continuări și grupuri de maximum 10 minute; comenzi Fizic/Telefon cu telefonul clientului.
-- [ ] Extracție AI cu instrucțiunile furnizate, catalog și context real; salvare pe tip de mesaj și verificări de termen/câmpuri obligatorii.
-- [ ] Mesaje WhatsApp editabile cu deschidere reală și confirmarea avertismentului; teste și verificare completă.
+- [x] Import WhatsApp cu continuări și grupuri de maximum 10 minute; comenzi Fizic/Telefon cu telefonul clientului.
+- [x] Extracție AI cu instrucțiunile furnizate, catalog și context real; salvare pe tip de mesaj și verificări de termen/câmpuri obligatorii.
+- [x] Mesaje WhatsApp editabile cu deschidere reală și confirmarea avertismentului; teste și verificare completă.
 - [x] Verificarea tuturor paginilor și acțiunilor pentru date reale, câmpuri necompletate și păstrarea comenzilor încheiate; eroarea de afișare nu se mai reproduce pe cele șase pagini sau la navigare.
 - [x] Înlocuirea completă a datelor mock cu tabelele conectate, verificarea stocului cu 11 flori / 75 fire de trandafir roșu și documentarea tabelelor pe ecran.
 - [x] Conectarea salvării setărilor și comenzilor la tabelele existente; salvarea setărilor verificată cu reîncărcare și restabilirea valorilor inițiale.
-- [ ] Execuție atomică cu scădere de stoc: necesită aprobarea unei funcții tranzacționale în baza echipei; nu există funcții și tabelele nu trebuie modificate. Butonul nu simulează succesul.
+- [ ] Execuție atomică cu scădere de stoc: operația de execuție rămâne neimplementată, în afara cerinței curente de extracție AI; butonul nu simulează succesul.
 - [x] Observații pentru termen și disponibilitatea florilor, cu modele WhatsApp editabile și verificare pe calculator și telefon.
 - [x] Simplificarea celor trei secțiuni centrale cu compoziții grafice animate pentru promovarea aplicației, fără schimbarea aplicației.
 - [x] Înlocuirea secțiunilor Haosul, Cifrele și Ordinea cu prezentarea aplicației, ecranelor și Inboxului real; păstrarea florilor și animațiilor.

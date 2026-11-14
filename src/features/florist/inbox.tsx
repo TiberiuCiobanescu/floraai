@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { prepareExtraction } from "./extraction.functions";
 import { processExtraction } from "./extraction-client";
@@ -26,10 +26,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedCount, useEntrance } from "./motion";
 import { toast } from "sonner";
 import { newestMessagesFirst } from "./message-order";
-const MessageLink = forwardRef<HTMLAnchorElement, { orderId: string; className: string; children: ReactNode }>(
-  ({ orderId, ...props }, ref) => orderId ? <Link ref={ref} to="/comenzi/$id" params={{ id: orderId }} {...props} /> : <a ref={ref} {...props} aria-disabled="true" />,
-);
-const MotionLink = motion.create(MessageLink);
 export function InboxPage() {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -39,6 +35,7 @@ export function InboxPage() {
   const abort = useRef<AbortController | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
+  const [processingError, setProcessingError] = useState("");
   const [phone, setPhone] = useState("");
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [reply, setReply] = useState("");
@@ -66,6 +63,7 @@ export function InboxPage() {
   async function process(textValue: string, channelValue: "WhatsApp" | "Fizic" | "Telefon") {
     if (busy) return;
     setBusy(true);
+    setProcessingError("");
     const controller = new AbortController(); abort.current = controller;
     try {
       const prepared = await prepare({ data: { text: textValue, channel: channelValue, phone } });
@@ -81,7 +79,7 @@ export function InboxPage() {
         if (channelValue !== "WhatsApp") { setOpen(false); setText(""); setPhone(""); }
       }
     } catch (error) {
-      if (!controller.signal.aborted) toast.error(error instanceof Error ? error.message : "Mesajele nu au fost procesate.");
+      if (!controller.signal.aborted) {const message = error instanceof Error ? error.message : "Mesajele nu au fost procesate.";setProcessingError(message);toast.error(message);}
     } finally { await refresh(); setBusy(false); setProgress(""); abort.current = null; }
   }
   const activeMessage = messages.find(m => m.id === selectedMessage);
@@ -112,6 +110,7 @@ export function InboxPage() {
         }
       />
       {busy && <div className="action-notice" role="status">{progress || "Se salvează mesajele…"} <Button variant="ghost" onClick={() => abort.current?.abort()}>Oprește</Button></div>}
+      {processingError && <div className="action-notice" role="alert">{processingError}</div>}
       <div className="stat-grid">
         {[
           {
@@ -313,6 +312,7 @@ export function InboxPage() {
             <Plus />
             Adaugă comanda
           </Button>
+          {processingError && <p className="text-destructive" role="alert">{processingError}</p>}
         </DialogContent>
       </Dialog>
       <Dialog open={Boolean(activeMessage)} onOpenChange={value => {if (!value) setSelectedMessage(null);}}>

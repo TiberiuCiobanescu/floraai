@@ -87,7 +87,7 @@ export function OrderDetail({ id }: { id: string }) {
     if (!popup) {toast.error("Permite deschiderea WhatsApp în browser înainte de a continua.");return;}
     popup.opener = null;
     if (!(await save("Așteaptă clientul"))) {popup.close();return;}
-    if (!(await updateMessage(id, "Așteaptă clientul"))) return;
+    if (!(await updateMessage(id, "Așteaptă clientul"))) {popup.close();return;}
     popup.location.href = url;
     setNotice("WhatsApp a fost deschis cu mesajul pregătit.");
     toast.success("WhatsApp a fost deschis cu mesajul pregătit.");
@@ -225,6 +225,7 @@ export function OrderDetail({ id }: { id: string }) {
             <div className={`field full-width ${missingProduct ? "missing-field" : ""}`}>
               Produse{missingProduct && <span className="text-destructive">lipsește</span>}
               <datalist id="catalog-produse">{catalog.map((product) => <option key={product.id} value={product.nume} />)}</datalist>
+              {order.missingFields?.includes("produs") && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={false} onChange={() => change("missingFields", (order.missingFields ?? []).filter(f => f !== "produs"))} />Produsul ales a fost verificat cu clientul</label>}
               {order.products.map((p, i) => (
                 <div className="product-input-row" key={i}>
                   <input

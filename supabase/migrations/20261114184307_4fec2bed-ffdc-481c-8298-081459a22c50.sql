@@ -1,0 +1,1 @@
+DO $$ DECLARE v_definition text; BEGIN SELECT pg_get_functiondef('public.aplica_extragere_comanda(text[],jsonb,text,integer)'::regprocedure) INTO v_definition; v_definition:=replace(v_definition, 'VALUES(v_phone,v_phone,''b2c'')', 'VALUES(v_phone,v_phone,''persoana'')'); EXECUTE v_definition; END $$;
