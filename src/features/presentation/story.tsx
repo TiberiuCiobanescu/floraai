@@ -47,7 +47,7 @@ function IllustratedSection({ children, final = false }: { children: ReactNode; 
     {!final && <motion.div className="story-layer story-mid" style={reduced ? {} : { y: middleY }}><motion.img src={workbench} alt="" width={1920} height={1088} style={reduced ? {} : { x, y }} /></motion.div>}
     <div className="story-shade" />
     <motion.div className="story-layer story-front" style={reduced ? {} : { y: frontY }}><img src={foreground} alt="" width={1920} height={1088} loading="lazy" /></motion.div>
-    {!final && <div className="story-petals" aria-hidden="true">{Array.from({ length: 9 }, (_, i) => <motion.i className={`story-petal petal-${i}`} key={i} initial={false} animate={reduced ? {} : { y: [0, -70, 0], x: [0, 25, -10, 0], rotate: [0, 65, -20, 0] }} transition={{ duration: 9 + i, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }} />)}</div>}
+    {!final && <div className="story-petals" aria-hidden="true">{Array.from({ length: 9 }, (_, i) => <i className={`story-petal petal-${i}`} key={i} />)}</div>}
     {children}
   </section>;
 }
