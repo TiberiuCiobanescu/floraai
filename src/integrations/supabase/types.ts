@@ -296,6 +296,14 @@ export type Database = {
         Args: { p_comanda: string; p_versiune: number }
         Returns: Json
       }
+      respinge_comanda: {
+        Args: { p_comanda: string; p_motiv: string; p_versiune: number }
+        Returns: undefined
+      }
+      valideaza_comanda: {
+        Args: { p_comanda: string; p_versiune: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

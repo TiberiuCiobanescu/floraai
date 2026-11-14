@@ -1,4 +1,6 @@
 # FloraAI
+- [ ] Simulator WhatsApp cu răspunsuri automate, validare/respingere de către florar, Inbox doar pentru clienți și Realtime.
+- [ ] La modificări după termen, răspuns fix fără intrebare_client; conversații ordonate după ID-ul inserării, nu după ora demo.
 - [x] Calculul termenului de la 08:00 în ziua livrării când intervalul lipsește, inclusiv la procesarea mesajelor; verificat în Comenzi și Detaliu pe o comandă reală, fără scrieri de test în bază.
 - [x] Import WhatsApp cu continuări și grupuri de maximum 10 minute; comenzi Fizic/Telefon cu telefonul clientului.
 - [x] Extracție AI cu instrucțiunile furnizate, catalog și context real; salvare pe tip de mesaj și verificări de termen/câmpuri obligatorii.
