@@ -36,3 +36,4 @@ use the editor.
 - Define florist visual styles and semantic colors in the global design system so every screen uses a consistent palette.
 - Use the shared text normalization helpers for human-text comparisons only; keep original input in state and display, and compare IDs and route paths literally.
 - Link follow-up messages through the shared phone-matching helper and append them without mutating orders; confirmation remains an explicit florist action.
+- Keep Framer Motion presentation helpers separate from florist state and honor reduced-motion for transforms, opacity, counters and delays; mount one shared Sonner toaster for action feedback.

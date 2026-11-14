@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { forwardRef, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Upload,
@@ -18,7 +18,15 @@ import { useFlorist } from "./store";
 import { isOverdue, type Order } from "./data";
 import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
 import { normalizeText, textEquals, textIncludes } from "@/lib/normalize-text";
+import { motion, useReducedMotion } from "framer-motion";
+import { AnimatedCount, useEntrance } from "./motion";
+const MessageLink = forwardRef<HTMLAnchorElement, { orderId: string; className: string; children: ReactNode }>(
+  ({ orderId, ...props }, ref) => <Link ref={ref} to="/comenzi/$id" params={{ id: orderId }} {...props} />,
+);
+const MotionLink = motion.create(MessageLink);
 export function InboxPage() {
+  const entrance = useEntrance();
+  const reduced = useReducedMotion();
   const { messages, orders, addOrder } = useFlorist();
   const [tab, setTab] = useState("Toate mesajele");
   const [search, setSearch] = useState("");
@@ -117,17 +125,19 @@ export function InboxPage() {
             tone: "green",
             caption: "Gata pentru următorul pas",
           },
-        ].map((s) => (
-          <div className="stat-card" key={s.label}>
+        ].map((s, i) => (
+          <motion.div className="stat-card" key={s.label} {...entrance}
+            transition={{ ...entrance.transition, delay: reduced ? 0 : i * 0.05 }}
+            whileHover={reduced ? {} : { y: -2 }}>
             <div>
               <span className="stat-label">{s.label}</span>
-              <strong>{s.value.toString().padStart(2, "0")}</strong>
+              <AnimatedCount value={s.value} />
               <small>{s.caption}</small>
             </div>
             <span className={`stat-icon ${s.tone}`}>
               <s.icon size={21} />
             </span>
-          </div>
+          </motion.div>
         ))}
       </div>
       {overdue > 0 && (
@@ -206,10 +216,11 @@ export function InboxPage() {
             <span />
           </div>
           {filtered.map((m, i) => (
-            <Link
-              to="/comenzi/$id"
-              params={{ id: m.orderId }}
+            <MotionLink
+              orderId={m.orderId}
               key={m.id}
+              {...entrance}
+              transition={{ ...entrance.transition, delay: reduced ? 0 : Math.min(i, 8) * 0.05 }}
               className={`message-row ${textEquals(m.status, "Nou") ? "unread" : ""}`}
             >
               <div className="message-main">
@@ -237,7 +248,7 @@ export function InboxPage() {
                 <StatusBadge value={m.status} />
               </div>
               <ChevronRight size={18} className="row-chevron" />
-            </Link>
+            </MotionLink>
           ))}
           {filtered.length === 0 && (
             <div className="empty-state">

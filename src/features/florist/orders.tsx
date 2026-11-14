@@ -6,7 +6,12 @@ import { PageHeading, StatusBadge } from "./shared";
 import { useFlorist } from "./store";
 import { dateLabel, productSummary, modificationDeadline, canMarkExecuted, DEMO_NOW } from "./data";
 import { textEquals, textIncludes } from "@/lib/normalize-text";
+import { motion, useReducedMotion } from "framer-motion";
+import { toast } from "sonner";
+import { useEntrance } from "./motion";
 export function OrdersPage() {
+  const entrance = useEntrance();
+  const reduced = useReducedMotion();
   const { orders, updateOrder, limits } = useFlorist();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("Toate statusurile");
@@ -80,10 +85,11 @@ export function OrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((o) => {
+            {filtered.map((o, i) => {
               const deadline = modificationDeadline(o, limits);
               return (
-                <tr key={o.id}>
+                <motion.tr key={o.id} {...entrance}
+                  transition={{ ...entrance.transition, delay: reduced ? 0 : Math.min(i, 8) * 0.05 }}>
                   <td>
                     <strong>{dateLabel(o.date)}</strong>
                     <small>{o.time}</small>
@@ -111,14 +117,17 @@ export function OrdersPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => updateOrder({ ...o, status: "Executată" })}
+                        onClick={() => {
+                          updateOrder({ ...o, status: "Executată" });
+                          toast.success("Comanda a fost marcată executată");
+                        }}
                       >
                         <Check />
                         Marchează executată
                       </Button>
                     )}
                   </td>
-                </tr>
+                </motion.tr>
               );
             })}
           </tbody>

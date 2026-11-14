@@ -6,7 +6,12 @@ import { useFlorist } from "./store";
 import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
 import { modificationDeadline, DEMO_NOW, dateLabel, type Order } from "./data";
 import { normalizeText, textEquals } from "@/lib/normalize-text";
+import { toast } from "sonner";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEntrance } from "./motion";
 export function OrderDetail({ id }: { id: string }) {
+  const entrance = useEntrance();
+  const reduced = useReducedMotion();
   const { orders, messages, limits, updateOrder, updateMessage } = useFlorist();
   const original = orders.find((o) => o.id === id);
   const [draft, setDraft] = useState<Order | undefined>(original);
@@ -55,6 +60,7 @@ export function OrderDetail({ id }: { id: string }) {
     save("Confirmată");
     updateMessage(id, "Confirmat");
     setNotice("Comanda a fost confirmată.");
+    toast.success("Comanda a fost confirmată.");
   }
   return (
     <>
@@ -82,7 +88,7 @@ export function OrderDetail({ id }: { id: string }) {
             <h2>Mesajul original</h2>
             <MessageCircle size={18} />
           </div>
-          <article className="original-card">
+          <motion.article className="original-card" {...entrance} whileHover={reduced ? {} : { y: -2 }}>
             <div className="original-client">
               <span className="client-avatar avatar-0">
                 {(message?.client ?? order.client)
@@ -98,7 +104,7 @@ export function OrderDetail({ id }: { id: string }) {
             </div>
             <blockquote>{message?.text ?? "Comandă introdusă în atelier."}</blockquote>
             <Channel value={message?.channel ?? "Fizic"} />
-          </article>
+          </motion.article>
           <div className="deadline-block">
             <h3>Termen de modificare</h3>
             {expired ? (
@@ -300,6 +306,7 @@ export function OrderDetail({ id }: { id: string }) {
                 save("Așteaptă clientul");
                 updateMessage(id, "Așteaptă clientul");
                 setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
+                toast.success("Simulare: întrebarea a fost trimisă pe WhatsApp.");
               }}
             >
               <MessageCircle />

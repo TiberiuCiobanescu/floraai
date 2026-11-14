@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeading } from "./shared";
 import { useFlorist } from "./store";
 import { textEquals } from "@/lib/normalize-text";
+import { toast } from "sonner";
 export function SettingsPage() {
   const { stock, setStock, limits, setLimits } = useFlorist();
   const [draftStock, setDraftStock] = useState(stock);
@@ -13,6 +14,7 @@ export function SettingsPage() {
     setStock(draftStock);
     setLimits(draftLimits);
     setSaved(true);
+    toast.success("Setări salvate");
   }
   return (
     <>

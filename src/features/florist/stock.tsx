@@ -3,7 +3,11 @@ import { PageHeading, AlertBand, StatusBadge } from "./shared";
 import { useFlorist } from "./store";
 import { isLowStock } from "./data";
 import { textEquals } from "@/lib/normalize-text";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEntrance } from "./motion";
 export function StockPage() {
+  const entrance = useEntrance();
+  const reduced = useReducedMotion();
   const { stock } = useFlorist();
   const low = stock.filter(isLowStock);
   return (
@@ -13,8 +17,8 @@ export function StockPage() {
         title="Stoc"
         description="Florile din atelier și livrările pe care le aștepți."
       />
-      {low.map((s) => (
-        <AlertBand key={s.name}>
+      {low.map((s, i) => (
+        <AlertBand key={s.name} index={i}>
           <strong>
             Au rămas {s.quantity} de{" "}
             {textEquals(s.name, "Trandafir roșu") ? "trandafiri roșii" : s.name.toLowerCase()}{" "}
@@ -40,8 +44,9 @@ export function StockPage() {
             </tr>
           </thead>
           <tbody>
-            {stock.map((s) => (
-              <tr key={s.name} className={isLowStock(s) ? "low-stock-row" : ""}>
+            {stock.map((s, i) => (
+              <motion.tr key={s.name} className={isLowStock(s) ? "low-stock-row" : ""}
+                {...entrance} transition={{ ...entrance.transition, delay: reduced ? 0 : i * 0.05 }}>
                 <td>
                   <span className="flower-name">
                     <Sprout size={18} />
@@ -50,12 +55,18 @@ export function StockPage() {
                 </td>
                 <td>
                   <strong>{s.quantity}</strong> fire
+                  <div className={`stock-level ${isLowStock(s) ? "below-threshold" : "above-threshold"}`} aria-hidden="true">
+                    <motion.div className="stock-level-fill"
+                      initial={reduced ? false : { scaleX: 0 }}
+                      animate={{ scaleX: s.threshold <= 0 ? 1 : Math.min(1, s.quantity / s.threshold) }}
+                      transition={{ duration: reduced ? 0 : 0.3, delay: reduced ? 0 : i * 0.05 }} />
+                  </div>
                 </td>
                 <td>{s.threshold} fire</td>
                 <td>
                   <StatusBadge value={isLowStock(s) ? "Stoc redus" : "În regulă"} />
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>
@@ -79,8 +90,10 @@ export function StockPage() {
               flowers: "50 trandafiri albi · 30 eucalipt · 40 lisianthus",
               waiting: 2,
             },
-          ].map((s) => (
-            <article className="delivery-card" key={s.name}>
+          ].map((s, i) => (
+            <motion.article className="delivery-card" key={s.name} {...entrance}
+              transition={{ ...entrance.transition, delay: reduced ? 0 : i * 0.05 }}
+              whileHover={reduced ? {} : { y: -2 }}>
               <div className="delivery-heading">
                 <span className="supplier-icon">
                   <Truck size={20} />
@@ -97,7 +110,7 @@ export function StockPage() {
                 <span className="online-dot" />
                 {s.waiting} comenzi așteaptă această livrare
               </small>
-            </article>
+            </motion.article>
           ))}
         </div>
       </section>

@@ -1,4 +1,6 @@
 # Florio
+- [x] Animații Framer Motion pentru pagini, apariție succesivă, cifre, meniu, statusuri și barele de stoc.
+- [x] Feedback toast, efecte discrete la interacțiune și verificare cu mișcare redusă, fără modificarea logicii sau datelor.
 - [x] Înlocuirea numelui, mesaje Completare/Confirmare legate după telefon și filtrul de tipuri.
 - [x] Verificarea cerințelor existente, testelor și fluxului manual de confirmare, fără schimbări de design.
 - [x] Comparații comune fără diacritice pentru căutări și filtre, cu păstrarea textului original și verificarea editării/salvării.

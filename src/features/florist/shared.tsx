@@ -21,6 +21,9 @@ import { Button } from "@/components/ui/button";
 import { useFlorist } from "./store";
 import bouquet from "@/assets/floral-still-life.jpg";
 import { textEquals } from "@/lib/normalize-text";
+import { motion, MotionConfig, useReducedMotion } from "framer-motion";
+import { Toaster } from "@/components/ui/sonner";
+import { useEntrance } from "./motion";
 const items = [
   { label: "Inbox", to: "/" as const, icon: Inbox },
   { label: "Comenzi", to: "/comenzi" as const, icon: ClipboardList },
@@ -32,7 +35,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { messages } = useFlorist();
   const unread = messages.filter((m) => textEquals(m.status, "Nou")).length;
+  const reduced = useReducedMotion();
+  const entrance = useEntrance();
+  const activeIndex = items.findIndex((item) => pathname === item.to || (item.to === "/comenzi" && pathname.startsWith("/comenzi/")));
   return (
+    <MotionConfig reducedMotion="user">
     <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
       <aside className="app-sidebar">
         <Link to="/" className="brand">
@@ -53,6 +60,13 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <div className="nav-label">ATELIERUL TĂU</div>
         <nav>
+          <motion.i
+            className="nav-active-indicator"
+            aria-hidden="true"
+            initial={false}
+            animate={{ y: Math.max(0, activeIndex) * 51, opacity: activeIndex < 0 ? 0 : 1 }}
+            transition={{ duration: reduced ? 0 : 0.24, ease: "easeInOut" }}
+          />
           {items.map((item) => (
             <Button
               variant="ghost"
@@ -115,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             Sâmbătă, 14 noiembrie 2026<span className="demo-label">DATE DEMO</span>
           </div>
         </header>
-        <main className="page-content">{children}</main>
+        <motion.main key={pathname} className="page-content" {...entrance}>{children}</motion.main>
         <footer className="page-footer">
           <span>Cu grijă pentru fiecare comandă.</span>
           <Flower2 size={15} />
@@ -123,6 +137,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </footer>
       </div>
     </div>
+    <Toaster position="bottom-right" duration={2600} />
+    </MotionConfig>
   );
 }
 export function PageHeading({
@@ -148,6 +164,7 @@ export function PageHeading({
   );
 }
 export function StatusBadge({ value }: { value: string }) {
+  const reduced = useReducedMotion();
   let tone = "neutral";
   if (["Nou", "Draft", "Stoc redus"].some((status) => textEquals(status, value))) tone = "rose";
   if (
@@ -162,10 +179,12 @@ export function StatusBadge({ value }: { value: string }) {
   if (textEquals(value, "Completare")) tone = "lilac";
   if (textEquals(value, "Confirmare")) tone = "rose";
   return (
-    <span className={`status-badge ${tone}`}>
+    <motion.span key={value} className={`status-badge ${tone}`}
+      initial={reduced ? false : { opacity: 0.6, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }} transition={{ duration: reduced ? 0 : 0.2 }}>
       <span />
       {value}
-    </span>
+    </motion.span>
   );
 }
 export function Channel({ value }: { value: string }) {
@@ -181,12 +200,15 @@ export function Channel({ value }: { value: string }) {
     </span>
   );
 }
-export function AlertBand({ children, tone = "rose" }: { children: ReactNode; tone?: string }) {
+export function AlertBand({ children, tone = "rose", index = 0 }: { children: ReactNode; tone?: string; index?: number }) {
+  const entrance = useEntrance(index);
+  const reduced = useReducedMotion();
   return (
-    <div className={`alert-band ${tone}`}>
+    <motion.div className={`alert-band ${tone}`} {...entrance}
+      animate={{ opacity: 1, y: 0, scale: reduced || tone !== "rose" ? 1 : [1, 1.006, 1] }}>
       <CircleAlert size={18} />
       {children}
-    </div>
+    </motion.div>
   );
 }
 export const icons = { ArrowUpRight, CircleCheck, Clock3 };
