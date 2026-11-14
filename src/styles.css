@@ -1672,7 +1672,7 @@ blockquote {
     height: 100%;
     aspect-ratio: auto;
   }
-  .story-hero .story-background img { object-fit: cover; object-position: center; }
+  .story-scene .story-background img { object-fit: cover; object-position: center; }
   .story-hero .story-mid img { transform: none !important; }
   .story-title { font-size: 54px; }.story-header > span { font-size: 25px; }.story-header-link { font-size: 12px; padding: 8px; }
   .story-statistics { grid-template-columns: 1fr; margin-top: 30px; }.story-statistics > div:nth-child(odd) { border-right: 0; }.story-statistics > div:nth-last-child(-n+2) { border-bottom: 1px solid var(--story-line); }.story-statistics > div:last-child { border-bottom: 0; }
