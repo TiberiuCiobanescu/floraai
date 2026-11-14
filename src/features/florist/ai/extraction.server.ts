@@ -15,7 +15,7 @@ export async function extractGroup(request: Request, ids: string[]) {
   if (denial) throw new Error(denial.intrebare_client?.slice(17) ?? "Accesul AI este oprit.");
   const messages = ids.map(id => allMessages.find(m => m.id === id));
   const first = messages[0];
-  if (!first || messages.some(m => !m || m.telefon !== first.telefon || m.tip_mesaj || !["nou","asteapta_client"].includes(m.status))) throw new Error("Mesajele nu pot fi procesate. Reîncarcă Inbox.");
+  if (!first || messages.some(m => !m || m.telefon !== first.telefon || m.directie !== "client" || m.tip_mesaj || !["nou","asteapta_client"].includes(m.status))) throw new Error("Mesajele nu pot fi procesate. Reîncarcă Inbox.");
   const customer = clients.find(c => c.telefon === first.telefon);
   const openOrder = orders.filter(o => o.telefon === first.telefon && !["executata","livrata"].includes(o.status)).sort((a,b) => b.id.localeCompare(a.id,undefined,{numeric:true}))[0];
   const csv = ["id,nume,pret_lei,tip,compozitie,sinonime", ...catalog.map(p => [p.id,p.nume,p.pret_lei,p.tip,p.compozitie,p.sinonime ?? ""].map(v => `"${String(v).replaceAll('"','""')}"`).join(","))].join("\n");

@@ -13,6 +13,7 @@ import {
   CircleCheck,
   Clock3,
   CircleAlert,
+  MessagesSquare,
 } from "lucide-react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
@@ -28,6 +29,7 @@ import { WorkspaceEditor } from "./workspace";
 const items = [
   { label: "Inbox", to: "/inbox" as const, icon: Inbox },
   { label: "Comenzi", to: "/comenzi" as const, icon: ClipboardList },
+  { label: "Simulator WhatsApp", to: "/simulator" as const, icon: MessagesSquare },
   { label: "Stoc", to: "/stoc" as const, icon: Sprout },
   { label: "Setări", to: "/setari" as const, icon: Settings2 },
 ];
@@ -35,7 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.matches.at(-1)?.pathname ?? "/" });
   const { messages } = useFlorist();
-  const unread = messages.filter((m) => textEquals(m.status, "Nou")).length;
+  const unread = messages.filter((m) => m.direction === "client" && textEquals(m.status, "Nou")).length;
   const reduced = useReducedMotion();
   const entrance = useEntrance();
   const activeIndex = items.findIndex((item) => pathname === item.to || (item.to === "/comenzi" && pathname.startsWith("/comenzi/")));
@@ -158,8 +160,9 @@ export function StatusBadge({ value }: { value: string }) {
     )
   )
     tone = "green";
-  if (["Așteaptă clientul", "În lucru", "Modificare"].some((status) => textEquals(status, value)))
+  if (["Așteaptă clientul", "De validat", "În lucru", "Modificare"].some((status) => textEquals(status, value)))
     tone = "amber";
+  if (textEquals(value, "Respinsă")) tone = "rose";
   if (textEquals(value, "Comandă nouă")) tone = "green";
   if (textEquals(value, "Completare")) tone = "lilac";
   if (textEquals(value, "Confirmare")) tone = "rose";

@@ -12,6 +12,7 @@ const reply: Omit<Message, "orderId"> = {
   channel: "WhatsApp",
   type: "Confirmare",
   status: "Nou",
+  direction: "client",
 };
 
 describe("Mesaje pentru comenzi existente", () => {

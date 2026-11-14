@@ -1,7 +1,7 @@
 import { textEquals } from "@/lib/normalize-text";
 
 export type OrderStatus =
-  "Draft" | "Așteaptă clientul" | "Confirmată" | "În lucru" | "Executată" | "Livrată";
+  "Draft" | "Așteaptă clientul" | "De validat" | "Confirmată" | "Respinsă" | "În lucru" | "Executată" | "Livrată";
 export type OrderType = "Buchet în oraș" | "Nuntă";
 export type Product = { id?: string; lineId?: number; name: string; quantity: number; composition?: string; extras?: string };
 export type Order = {
@@ -34,6 +34,7 @@ export type Message = {
   channel: "WhatsApp" | "Telefon" | "Fizic";
   type: string;
   status: string;
+  direction: "client" | "florarie";
   question?: string;
 };
 export const DEMO_NOW = new Date("2026-11-14T10:05:00+02:00");

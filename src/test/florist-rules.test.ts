@@ -52,7 +52,9 @@ describe("Regulile florăriei", () => {
   it.each([
     ["Draft", false],
     ["Așteaptă clientul", false],
+    ["De validat", false],
     ["Confirmată", true],
+    ["Respinsă", false],
     ["În lucru", true],
     ["Executată", false],
     ["Livrată", false],

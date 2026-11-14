@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mapFloristRows, parseComposition, type FloristRows } from "@/features/florist/database-mapping";
+import { mapFloristRows, orderStatusLabels, parseComposition, type FloristRows } from "@/features/florist/database-mapping";
 import { DEMO_NOW, isLowStock } from "@/features/florist/data";
 
 describe("Connected database mapping", () => {
@@ -24,6 +24,10 @@ describe("Connected database mapping", () => {
   it("alerts at or below the database threshold", () => {
     expect(isLowStock({ quantity: 20, threshold: 20 })).toBe(true);
     expect(isLowStock({ quantity: 21, threshold: 20 })).toBe(false);
+  });
+  it("maps florist validation statuses to the Romanian workflow labels", () => {
+    expect(orderStatusLabels.asteapta_validare).toBe("De validat");
+    expect(orderStatusLabels.respinsa).toBe("Respinsă");
   });
   it("reads stem counts from real product composition format", () => {
     expect(parseComposition("trandafir rosu:15;eucalipt:3")).toEqual([{ flower: "trandafir rosu", stems: 15 }, { flower: "eucalipt", stems: 3 }]);

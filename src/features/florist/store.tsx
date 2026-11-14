@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, type Context, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type Context, type ReactNode } from "react";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
 import { floristQueryOptions } from "./database-query";
-import { executeFloristOrder, saveFloristOrder, saveFloristSettings, saveMessageStatus } from "./database.functions";
+import { executeFloristOrder, rejectFloristOrder, saveFloristOrder, saveFloristSettings, saveMessageStatus, validateFloristOrder } from "./database.functions";
 import { toast } from "sonner";
 import type { Order } from "./data";
 function useFloristState() {
@@ -12,6 +13,8 @@ function useFloristState() {
   const saveSettingsFn = useServerFn(saveFloristSettings);
   const saveStatus = useServerFn(saveMessageStatus);
   const executeOrderFn = useServerFn(executeFloristOrder);
+  const validateOrderFn = useServerFn(validateFloristOrder);
+  const rejectOrderFn = useServerFn(rejectFloristOrder);
   const [profile, setProfile] = useState({ name: "Atelierul meu", description: "Florărie independentă", initials: "AZ" });
   const [workspace, setWorkspace] = useState({ name: "Atelier de flori", location: "București, România" });
   async function refresh() {
@@ -39,6 +42,28 @@ function useFloristState() {
       return false;
     }
   }
+  async function validateOrder(order: Order) {
+    try {
+      if (order.version === undefined) throw new Error("Reîncarcă datele înainte de validare.");
+      await validateOrderFn({ data: { id: order.id, version: order.version } });
+      await refresh();
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Comanda nu a putut fi validată.");
+      return false;
+    }
+  }
+  async function rejectOrder(order: Order, reason: string) {
+    try {
+      if (order.version === undefined) throw new Error("Reîncarcă datele înainte de respingere.");
+      await rejectOrderFn({ data: { id: order.id, version: order.version, reason } });
+      await refresh();
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Comanda nu a putut fi respinsă.");
+      return false;
+    }
+  }
   async function updateMessage(orderId: string, status: string) {
     try { await saveStatus({ data: { orderId, status } }); await refresh(); return true; }
     catch (error) { toast.error(error instanceof Error ? error.message : "Statusul mesajului nu a fost salvat."); return false; }
@@ -47,7 +72,19 @@ function useFloristState() {
     await saveSettingsFn({ data: { stock, limits } });
     await refresh();
   }
-  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, executeOrder, updateMessage, saveSettings, refresh };
+  useEffect(() => {
+    const channel = supabase
+      .channel("florist-live-updates")
+      .on("postgres_changes", { event: "*", schema: "public", table: "mesaje" }, () => {
+        void queryClient.invalidateQueries({ queryKey: floristQueryOptions.queryKey });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "comenzi" }, () => {
+        void queryClient.invalidateQueries({ queryKey: floristQueryOptions.queryKey });
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [queryClient]);
+  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, executeOrder, validateOrder, rejectOrder, updateMessage, saveSettings, refresh };
 }
 type FloristValue = ReturnType<typeof useFloristState>;
 // An open preview can retain the old provider while a route receives the refreshed hook.

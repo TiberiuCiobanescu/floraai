@@ -14,6 +14,9 @@ import { orderObservations } from "./order-observations";
 import { changeProductName } from "./order-safety";
 import { whatsappUrl } from "./whatsapp";
 import { editableMissingFields } from "./extraction-rules";
+import { ConversationBubbles } from "./conversation";
+import { OrderValidation } from "./order-validation";
+import { phoneKey } from "./whatsapp";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -35,7 +38,8 @@ export function OrderDetail({ id }: { id: string }) {
   const settled = textEquals(order.status, "Executată") || textEquals(order.status, "Livrată");
   const observations = orderObservations(order, stock, limits, DEMO_NOW, messages);
   const recommendations = clientQuestionOptions(order, messages);
-  const message = messages.find((m) => m.orderId === id);
+  const message = messages.find((m) => m.orderId === id && m.direction === "client");
+  const conversation = messages.filter((m) => phoneKey(m.phone) === phoneKey(order.phone));
   const deadline = modificationDeadline(order, limits);
   const expired = deadline < DEMO_NOW;
   const required = ["client", "phone", "address", "recipient"] as const;
@@ -135,6 +139,10 @@ export function OrderDetail({ id }: { id: string }) {
             <blockquote>{message?.text ?? "Nu există un mesaj asociat acestei comenzi."}</blockquote>
             {message && <Channel value={message.channel} />}
           </motion.article>
+          <div className="detail-conversation">
+            <div className="section-title"><h2>Istoricul conversației</h2><MessageCircle size={18} /></div>
+            <ConversationBubbles messages={conversation} />
+          </div>
           <div className="deadline-block">
             <h3>Termen de modificare</h3>
             {!Number.isFinite(deadline.getTime()) ? <p>Completează data livrării.</p> : expired ? (
@@ -388,6 +396,9 @@ export function OrderDetail({ id }: { id: string }) {
               {notice}
             </div>
           )}
+          {textEquals(order.status, "De validat") && (
+            <OrderValidation order={order} onUpdated={(status, version) => setDraft((current) => current ? { ...current, status, version, versions: [`v${version}`] } : current)} />
+          )}
           <div className="detail-actions">
             <Button
               variant="outline"
@@ -397,10 +408,12 @@ export function OrderDetail({ id }: { id: string }) {
               <Send />
               Trimite rezumatul spre confirmare
             </Button>
-            <Button disabled={settled || missing.length > 0 || missingProduct || extractedMissing.length > 0} onClick={confirm}>
-              <Check />
-              Marchează confirmată
-            </Button>
+            {!textEquals(order.status, "De validat") && (
+              <Button disabled={settled || missing.length > 0 || missingProduct || extractedMissing.length > 0} onClick={confirm}>
+                <Check />
+                Marchează confirmată
+              </Button>
+            )}
           </div>
         </section>
       </div>

@@ -14,8 +14,8 @@ export type FloristRows = {
 };
 
 export const orderStatusLabels: Record<string, OrderStatus> = {
-  draft: "Draft", asteapta_client: "Așteaptă clientul", confirmata: "Confirmată",
-  in_lucru: "În lucru", executata: "Executată", livrata: "Livrată",
+  draft: "Draft", asteapta_client: "Așteaptă clientul", asteapta_validare: "De validat", confirmata: "Confirmată",
+  respinsa: "Respinsă", in_lucru: "În lucru", executata: "Executată", livrata: "Livrată",
 };
 export const orderTypeLabels: Record<string, OrderType> = { buchet_oras: "Buchet în oraș", nunta: "Nuntă" };
 export const messageStatusLabels: Record<string, string> = {
@@ -76,9 +76,11 @@ export function mapFloristRows(rows: FloristRows) {
     channel: textEquals(row.canal ?? "", "telefon") ? "Telefon" : textEquals(row.canal ?? "", "fizic") ? "Fizic" : "WhatsApp",
     type: messageTypeLabels[row.tip_mesaj ?? ""] ?? row.tip_mesaj ?? "Altceva",
     status: messageStatusLabels[row.status] ?? row.status,
+    direction: row.directie === "florarie" ? "florarie" : "client",
     question: row.intrebare_client?.startsWith("AI_ACCESS_DENIED:") ? "" : row.intrebare_client ?? "",
   }));
   return { orders, messages, limits, catalog: rows.produse,
+    clients: rows.clienti.map((row) => ({ phone: row.telefon, name: row.nume })),
     stock: rows.stoc.map((row) => ({ key: row.floare, name: flowerLabel(row.floare), quantity: row.cantitate_fire, threshold: row.prag_alerta })),
     deliveries: rows.livrari_furnizor.filter((row) => row.receptionat === "nu"),
   };

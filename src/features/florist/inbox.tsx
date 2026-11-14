@@ -29,7 +29,9 @@ import { newestMessagesFirst } from "./message-order";
 export function InboxPage() {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { messages, refresh } = useFlorist();
+  const { messages: allMessages, orders, refresh } = useFlorist();
+  const messages = allMessages.filter((message) => message.direction === "client");
+  const awaitingValidation = orders.filter((order) => textEquals(order.status, "De validat")).length;
   const prepare = useServerFn(prepareExtraction);
   const fileInput = useRef<HTMLInputElement>(null);
   const abort = useRef<AbortController | null>(null);
@@ -111,7 +113,7 @@ export function InboxPage() {
       />
       {busy && <div className="action-notice" role="status">{progress || "Se salvează mesajele…"} <Button variant="ghost" onClick={() => abort.current?.abort()}>Oprește</Button></div>}
       {processingError && <div className="action-notice" role="alert">{processingError}</div>}
-      <div className="stat-grid">
+      <div className="stat-grid inbox-stat-grid">
         {[
           {
             label: "Mesaje noi",
@@ -133,6 +135,13 @@ export function InboxPage() {
             icon: CircleCheck,
             tone: "green",
             caption: "Gata pentru următorul pas",
+          },
+          {
+            label: "De validat",
+            value: awaitingValidation,
+            icon: Clock3,
+            tone: "amber",
+            caption: "Comenzi care așteaptă decizia ta",
           },
         ].map((s, i) => (
           <motion.div className="stat-card" key={s.label} {...entrance}

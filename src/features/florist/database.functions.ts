@@ -58,6 +58,20 @@ export const executeFloristOrder = createServerFn({ method: "POST" })
     }
     return executionResultSchema.parse(result);
   });
+export const validateFloristOrder = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string().min(1), version: z.number().int().positive() }))
+  .handler(async ({ data }) => {
+    const { error } = await databaseClient().rpc("valideaza_comanda", { p_comanda: data.id, p_versiune: data.version });
+    if (error) throw new Error(error.message);
+    return { saved: true };
+  });
+export const rejectFloristOrder = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ id: z.string().min(1), version: z.number().int().positive(), reason: z.string().trim().min(1).max(1000) }))
+  .handler(async ({ data }) => {
+    const { error } = await databaseClient().rpc("respinge_comanda", { p_comanda: data.id, p_versiune: data.version, p_motiv: data.reason });
+    if (error) throw new Error(error.message);
+    return { saved: true };
+  });
 const settingsSchema = z.object({
   limits: z.object({ "Buchet în oraș": z.number().int().min(0).max(720), "Nuntă": z.number().int().min(0).max(720) }),
   stock: z.array(z.object({ key: z.string().min(1), threshold: z.number().int().min(0) })),
@@ -77,7 +91,7 @@ export const saveFloristSettings = createServerFn({ method: "POST" }).inputValid
 const orderSchema = z.object({
   id: z.string().min(1), client: z.string(), phone: z.string(), type: z.enum(["Buchet în oraș", "Nuntă"]),
   date: z.string(), time: z.string(), address: z.string(), recipient: z.string(), note: z.string(),
-  status: z.enum(["Draft", "Așteaptă clientul", "Confirmată", "În lucru", "Executată", "Livrată"]),
+  status: z.enum(["Draft", "Așteaptă clientul", "De validat", "Confirmată", "Respinsă", "În lucru", "Executată", "Livrată"]),
   extras: z.string(), versions: z.array(z.string()), question: z.string().optional(), version: z.number().optional(),
   missingFields: z.array(z.string()).optional(),
   products: z.array(z.object({ id: z.string().optional(), lineId: z.number().optional(), name: z.string(), quantity: z.number().int().positive(), extras: z.string().optional(), composition: z.string().optional() })),

@@ -18,5 +18,6 @@ describe("App routing", () => {
     const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
     expect(router.matchRoutes("/").at(-1)?.routeId).toBe("/");
     expect(router.matchRoutes("/inbox").at(-1)?.routeId).toBe("/inbox");
+    expect(router.matchRoutes("/simulator").at(-1)?.routeId).toBe("/simulator");
   });
 });
