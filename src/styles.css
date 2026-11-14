@@ -1647,8 +1647,18 @@ blockquote {
   .story-section { padding: 70px 6%; }.story-section-heading > p { font-size: 17px; }
 }
 @media (max-width: 480px) {
-  .story-hero .story-front { inset: auto -10px -30px; height: 48%; }
-  .story-hero .story-front img { object-fit: contain; object-position: center bottom; }
+  .story-hero { background: var(--story-rose); }
+  .story-hero .story-layer {
+    inset: auto 0 0;
+    height: auto;
+    aspect-ratio: 1920 / 1088;
+    transform: none !important;
+  }
+  .story-hero .story-layer img {
+    object-fit: contain;
+    object-position: center bottom;
+  }
+  .story-hero .story-mid img { transform: none !important; }
   .story-title { font-size: 54px; }.story-header > span { font-size: 25px; }.story-header-link { font-size: 12px; padding: 8px; }
   .story-statistics { grid-template-columns: 1fr; margin-top: 30px; }.story-statistics > div:nth-child(odd) { border-right: 0; }.story-statistics > div:nth-last-child(-n+2) { border-bottom: 1px solid var(--story-line); }.story-statistics > div:last-child { border-bottom: 0; }
   .story-statistics > div { padding: 18px; }.story-statistics strong { font-size: 58px; }.story-source { margin-top: 20px; }
