@@ -36,6 +36,19 @@ describe("Regulile florăriei", () => {
       ).getTime(),
     ).toBe(new Date("2026-11-12T15:00:00+02:00").getTime());
   });
+  it.each(["", "   "])("folosește ora 08:00 când intervalul lipsește (%s)", (time) => {
+    const order = initialOrders[0];
+    if (!order) throw new Error("Missing bouquet fixture");
+    expect(modificationDeadline({ ...order, date: "2026-11-14", time }, initialLimits).getTime()).toBe(
+      new Date("2026-11-14T05:00:00+02:00").getTime(),
+    );
+    expect(modificationDeadline({ ...order, type: "Nuntă", date: "2026-11-14", time }, initialLimits).getTime()).toBe(
+      new Date("2026-11-11T08:00:00+02:00").getTime(),
+    );
+    expect(modificationDeadline({ ...order, date: "2026-11-14", time }, { ...initialLimits, "Buchet în oraș": 1 }).getTime()).toBe(
+      new Date("2026-11-14T07:00:00+02:00").getTime(),
+    );
+  });
   it.each([
     ["Draft", false],
     ["Așteaptă clientul", false],

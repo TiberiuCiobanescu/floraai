@@ -1,4 +1,5 @@
 # FloraAI
+- [ ] Calculul termenului de la 08:00 în ziua livrării când intervalul lipsește, inclusiv la procesarea mesajelor; verificări fără scrieri de test în bază.
 - [x] Import WhatsApp cu continuări și grupuri de maximum 10 minute; comenzi Fizic/Telefon cu telefonul clientului.
 - [x] Extracție AI cu instrucțiunile furnizate, catalog și context real; salvare pe tip de mesaj și verificări de termen/câmpuri obligatorii.
 - [x] Mesaje WhatsApp editabile cu deschidere reală și confirmarea avertismentului; teste și verificare completă.

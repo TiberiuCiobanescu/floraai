@@ -30,6 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Application architecture
+- Keep missing-interval deadline handling aligned between the shared date helper and the extraction RPC so displayed, saved and late-change checks agree.
 - Load florist operational data exclusively from existing connected tables through a server function and a root Query loader; the provider exposes the query result, never demo fallback rows, so navigation and refresh show database data.
 - Use the publishable client under the team’s existing demo access policies, never admin credentials; preserve table structure and surface failed operations instead of claiming success.
 - Execute saved orders exclusively through the invoker RPC with order/version and deterministic row locks; it aggregates catalog recipes and auxiliary greenery, checks every shortage before writes, and commits stock/status together before refreshing the shared query.

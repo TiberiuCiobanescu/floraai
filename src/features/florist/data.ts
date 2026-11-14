@@ -51,8 +51,9 @@ export function canMarkExecuted(status: OrderStatus) {
   return textEquals(status, "Confirmată") || textEquals(status, "În lucru");
 }
 export function modificationDeadline(order: Order, limits: Record<OrderType, number>) {
+  const startTime = order.time.trim() ? order.time.trim().slice(0, 5) : "08:00";
   return new Date(
-    new Date(`${order.date}T${order.time.slice(0, 5)}:00+02:00`).getTime() - limits[order.type] * 3600000,
+    new Date(`${order.date}T${startTime}:00+02:00`).getTime() - limits[order.type] * 3600000,
   );
 }
 export function isOverdue(message: Message) {

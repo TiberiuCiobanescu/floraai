@@ -137,7 +137,7 @@ export function OrderDetail({ id }: { id: string }) {
           </motion.article>
           <div className="deadline-block">
             <h3>Termen de modificare</h3>
-            {!Number.isFinite(deadline.getTime()) ? <p>Completează data și intervalul livrării.</p> : expired ? (
+            {!Number.isFinite(deadline.getTime()) ? <p>Completează data livrării.</p> : expired ? (
               <AlertBand tone="amber">
                 <div>
                   <strong>Termenul de modificare a trecut</strong>
