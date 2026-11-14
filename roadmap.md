@@ -5,7 +5,8 @@
 - [x] Verificarea tuturor paginilor și acțiunilor pentru date reale, câmpuri necompletate și păstrarea comenzilor încheiate; eroarea de afișare nu se mai reproduce pe cele șase pagini sau la navigare.
 - [x] Înlocuirea completă a datelor mock cu tabelele conectate, verificarea stocului cu 11 flori / 75 fire de trandafir roșu și documentarea tabelelor pe ecran.
 - [x] Conectarea salvării setărilor și comenzilor la tabelele existente; salvarea setărilor verificată cu reîncărcare și restabilirea valorilor inițiale.
-- [ ] Execuție atomică: compoziții × cantități, 3 fire eucalipt pentru fiecare verdeață, refuz fără modificări la stoc insuficient și alerte la prag; verificare prin buton.
+- [x] Execuție atomică: compoziții × cantități, 3 fire eucalipt pentru fiecare verdeață, refuz fără modificări la stoc insuficient și alerte la prag; buton conectat și avertisment verificat.
+- [x] Oprirea testelor care scriu în baza de date; verificarea manuală a execuției cu stoc suficient rămâne la utilizator.
 - [x] Observații pentru termen și disponibilitatea florilor, cu modele WhatsApp editabile și verificare pe calculator și telefon.
 - [x] Simplificarea celor trei secțiuni centrale cu compoziții grafice animate pentru promovarea aplicației, fără schimbarea aplicației.
 - [x] Înlocuirea secțiunilor Haosul, Cifrele și Ordinea cu prezentarea aplicației, ecranelor și Inboxului real; păstrarea florilor și animațiilor.
