@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Keep florist demo data and editable state in a shared React provider; navigation must preserve edits without introducing persistence or external services.
+- Keep independent content routes for inbox, orders, order detail, inventory, and settings; order detail is un-nested so it does not render inside the orders table.
+- Define florist visual styles and semantic colors in the global design system so every screen uses a consistent palette.
