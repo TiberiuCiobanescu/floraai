@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type Context, type ReactNode } from "react";
 import {
   initialOrders,
   initialMessages,
@@ -32,7 +32,14 @@ function useFloristState() {
     addOrder,
   };
 }
-const FloristContext = createContext<ReturnType<typeof useFloristState> | null>(null);
+type FloristValue = ReturnType<typeof useFloristState>;
+// An open preview can retain the old provider while a route receives the refreshed hook.
+// Preserve context identity across hot updates; never share request state globally in SSR.
+const previousContext = import.meta.hot?.data?.["floristContext"] as
+  | Context<FloristValue | null>
+  | undefined;
+const FloristContext = previousContext ?? createContext<FloristValue | null>(null);
+if (import.meta.hot?.data) import.meta.hot.data["floristContext"] = FloristContext;
 export function FloristProvider({ children }: { children: ReactNode }) {
   const value = useFloristState();
   return <FloristContext.Provider value={value}>{children}</FloristContext.Provider>;
