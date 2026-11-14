@@ -11,6 +11,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
 import { recommendedClientQuestions } from "./client-questions";
 import { orderObservations } from "./order-observations";
+import { ObservationMessage } from "./observation-message";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -19,7 +20,7 @@ export function OrderDetail({ id }: { id: string }) {
   const [draft, setDraft] = useState<Order | undefined>(original);
   const [notice, setNotice] = useState("");
   const [question, setQuestion] = useState(() =>
-    original ? recommendedClientQuestions(original, messages, orderObservations(original, stock, limits))[0] ?? "" : "",
+    original ? recommendedClientQuestions(original, messages)[0] ?? "" : "",
   );
   if (!draft)
     return (
@@ -29,8 +30,8 @@ export function OrderDetail({ id }: { id: string }) {
       </>
     );
   const order = draft;
-  const observations = orderObservations(order, stock, limits);
-  const recommendations = recommendedClientQuestions(order, messages, observations);
+  const observations = orderObservations(order, stock, limits, DEMO_NOW, messages);
+  const recommendations = recommendedClientQuestions(order, messages);
   const message = messages.find((m) => m.orderId === id);
   const deadline = modificationDeadline(order, limits);
   const expired = deadline < DEMO_NOW;
@@ -65,6 +66,17 @@ export function OrderDetail({ id }: { id: string }) {
     updateMessage(id, "Confirmat");
     setNotice("Comanda a fost confirmată.");
     toast.success("Comanda a fost confirmată.");
+  }
+  function sendQuestion(text: string) {
+    if (!normalizeText(text) || /\[[^\]]+\]/.test(text)) {
+      setNotice("Completează modelul de mesaj înainte de trimitere.");
+      toast.error("Completează modelul de mesaj înainte de trimitere.");
+      return;
+    }
+    save("Așteaptă clientul");
+    updateMessage(id, "Așteaptă clientul");
+    setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
+    toast.success("Simulare: întrebarea a fost trimisă pe WhatsApp.");
   }
   return (
     <>
@@ -143,10 +155,6 @@ export function OrderDetail({ id }: { id: string }) {
                   <div className="min-w-0">
                     <strong>{observation.title}</strong>
                     <p className="my-2 text-sm">{observation.detail}</p>
-                    <Button variant="outline" className="h-auto whitespace-normal text-left" onClick={() => setQuestion(observation.template)}>
-                      <MessageCircle className="shrink-0" />
-                      Folosește modelul WhatsApp
-                    </Button>
                   </div>
                 </AlertBand>
               ))}
@@ -313,6 +321,9 @@ export function OrderDetail({ id }: { id: string }) {
               />
             </label>
           </div>
+          {observations.map((observation) => (
+            <ObservationMessage key={`${id}:${observation.kind}:${observation.title}`} observation={observation} onSend={sendQuestion} />
+          ))}
           <div className="question-box">
             <h3>Întrebare pentru client</h3>
             <div className="mb-3 flex flex-col items-start gap-2" aria-label="Întrebări recomandate">
@@ -337,17 +348,7 @@ export function OrderDetail({ id }: { id: string }) {
             />
             <Button
               variant="outline"
-              onClick={() => {
-                if (!normalizeText(question) || /\[[^\]]+\]/.test(question)) {
-                  setNotice("Completează modelul de mesaj înainte de trimitere.");
-                  toast.error("Completează modelul de mesaj înainte de trimitere.");
-                  return;
-                }
-                save("Așteaptă clientul");
-                updateMessage(id, "Așteaptă clientul");
-                setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
-                toast.success("Simulare: întrebarea a fost trimisă pe WhatsApp.");
-              }}
+              onClick={() => sendQuestion(question)}
             >
               <MessageCircle />
               Trimite pe WhatsApp

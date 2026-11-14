@@ -1,5 +1,6 @@
 import { normalizeText, textEquals } from "@/lib/normalize-text";
-import { DEMO_NOW, modificationDeadline, type Order, type OrderType } from "./data";
+import { DEMO_NOW, modificationDeadline, productSummary, type Order, type OrderType, type Message } from "./data";
+import { newestMessagesFirst } from "./message-order";
 
 type StockItem = { name: string; quantity: number };
 export type OrderObservation = { kind: "deadline" | "shortage" | "unknown"; title: string; detail: string; template: string };
@@ -12,9 +13,15 @@ const aliases: Record<string, string> = {
   eustoma: "lisianthus",
 };
 
-export function orderObservations(order: Order, stock: readonly StockItem[], limits: Record<OrderType, number>, now = DEMO_NOW): OrderObservation[] {
+export function orderObservations(order: Order, stock: readonly StockItem[], limits: Record<OrderType, number>, now = DEMO_NOW, messages: readonly Message[] = []): OrderObservation[] {
   if (textEquals(order.status, "Livrată") || textEquals(order.status, "Executată")) return [];
   const observations: OrderObservation[] = [];
+  const greeting = normalizeText(order.client) ? `Bună ziua, ${order.client}!` : "Bună ziua!";
+  const delivery = new Date(`${order.date}T12:00:00`);
+  const deliveryDate = Number.isFinite(delivery.getTime()) ? delivery.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" }) : "[completează data livrării]";
+  const context = `Comanda #${order.id}: ${productSummary(order) || "[completează produsele]"}, pentru ${order.recipient || "[completează destinatarul]"}, cu livrare pe ${deliveryDate}, ${order.time}${normalizeText(order.address) ? `, la ${order.address}` : ""}.`;
+  const latest = newestMessagesFirst(messages.filter((message) => message.orderId === order.id))[0];
+  const request = latest && textEquals(latest.type, "Modificare") ? ` Referitor la solicitarea dumneavoastră: „${latest.text}”.` : "";
   const deadline = modificationDeadline(order, limits);
   if (Number.isFinite(deadline.getTime())) {
     const formatted = deadline.toLocaleString("ro-RO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
@@ -24,8 +31,8 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
       title: expired ? "Termenul de modificare a trecut" : "Termenul de modificare este deschis",
       detail: expired ? `Termen: ${formatted}. Verifică posibilitatea modificării înainte de a o promite clientului.` : `Modificările pot fi discutate până la ${formatted}, cu ${limits[order.type]} ore înainte de livrare.`,
       template: expired
-        ? `Bună ziua! Pentru comanda #${order.id}, termenul de modificare (${formatted}) a trecut. Verificăm dacă solicitarea mai poate fi realizată. Varianta pe care v-o putem propune este: [completează după verificare]. Este potrivită pentru dumneavoastră?`
-        : `Bună ziua! Pentru comanda #${order.id}, termenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
+        ? `${greeting} ${context}${request} Termenul de modificare (${formatted}) a trecut. Verificăm dacă solicitarea mai poate fi realizată. Varianta pe care v-o putem propune este: [completează după verificare]. Este potrivită pentru dumneavoastră?`
+        : `${greeting} ${context}${request} Termenul de modificare este ${formatted}. Doriți să mai ajustăm vreun detaliu înainte de acest termen?`,
     });
   }
   const demand = new Map<StockItem, number>();
@@ -43,14 +50,14 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
     observations.push({
       kind: "shortage", title: `Stoc insuficient: ${item.name}`,
       detail: `Necesar: ${needed} fire · În stoc: ${item.quantity} fire · Lipsesc: ${needed - item.quantity} fire.`,
-      template: `Bună ziua! Pentru comanda #${order.id}, sunt necesare ${needed} fire de ${item.name.toLocaleLowerCase("ro-RO")}, iar în stoc avem ${item.quantity}. Ne lipsesc ${needed - item.quantity} fire. Vă propunem [completează florile alternative și cantitatea] sau [completează o altă variantă verificată]. Ce variantă preferați?`,
+      template: `${greeting} ${context} Pentru ${item.name.toLocaleLowerCase("ro-RO")}, sunt necesare ${needed} fire, iar în stoc avem ${item.quantity}. Ne lipsesc ${needed - item.quantity} fire. Vă propunem [completează florile alternative și cantitatea] sau [completează o altă variantă verificată]. Ce variantă preferați?`,
     });
   }
   for (const name of unknown) {
     observations.push({
       kind: "unknown", title: `Stoc de verificat: ${name}`,
       detail: "Produsul nu are o corespondență directă în stoc. Verifică florile și numărul de fire necesare; disponibilitatea nu poate fi stabilită automat.",
-      template: `Bună ziua! Verificăm disponibilitatea florilor pentru „${name}” din comanda #${order.id}. Vă putem propune [completează compoziția verificată și cantitățile]. Este potrivită pentru dumneavoastră?`,
+      template: `${greeting} ${context} Verificăm disponibilitatea florilor pentru „${name}”. Vă putem propune [completează compoziția verificată și cantitățile]. Este potrivită pentru dumneavoastră?`,
     });
   }
   return observations;

@@ -31,4 +31,20 @@ describe("Observații pentru termen și stoc", () => {
   it("nu avertizează privind producția unei comenzi deja livrate", () => {
     expect(orderObservations({ ...order, status: "Livrată" }, initialStock, initialLimits)).toEqual([]);
   });
+  it("personalizează separat termenul și stocul cu datele clientului", () => {
+    const personalized = { ...order, client: "Ana Șerban", recipient: "Maria Șerban", address: "Strada Florilor 8", products: [{ name: "Trandafiri albi", quantity: 90 }] };
+    const observations = orderObservations(personalized, initialStock, initialLimits);
+    const deadline = observations.find((entry) => entry.kind === "deadline");
+    const shortage = observations.find((entry) => entry.kind === "shortage");
+    for (const entry of [deadline, shortage]) {
+      expect(entry?.template).toContain("Ana Șerban");
+      expect(entry?.template).toContain("Maria Șerban");
+      expect(entry?.template).toContain("Strada Florilor 8");
+      expect(entry?.template).toContain("90 Trandafiri albi");
+      expect(entry?.template).toContain("13:00–14:00");
+    }
+    expect(deadline?.template).not.toContain("Ne lipsesc 8 fire");
+    expect(shortage?.template).toContain("Ne lipsesc 8 fire");
+    expect(shortage?.template).not.toContain("termenul de modificare");
+  });
 });

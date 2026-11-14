@@ -45,3 +45,4 @@ use the editor.
 - Sort Inbox views using full received timestamps on a copied message list, so filters remain newest-first without mutating shared data.
 - Derive client-question suggestions locally from the editable order and latest linked message; selecting a suggestion only changes the editable question, never sends or confirms an order.
 - Derive order observations from saved deadline settings and current stock using explicit flower aliases and summed stem demand; unknown bouquet recipes require manual checking, and WhatsApp templates remain editable simulated messages without stock reservations or automatic substitutions.
+- Give each deadline or stock observation its own editable WhatsApp message; personalize generated defaults from current client, recipient, delivery and products, preserve manual edits independently, and provide an explicit reset to the latest generated model.
