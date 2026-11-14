@@ -1,9 +1,10 @@
 import { normalizeText, textEquals } from "@/lib/normalize-text";
 import { dateLabel, productSummary, type Message, type Order } from "./data";
 import { newestMessagesFirst } from "./message-order";
+import type { OrderObservation } from "./order-observations";
 
-export function recommendedClientQuestions(order: Order, messages: readonly Message[]): string[] {
-  const questions: string[] = [];
+export function recommendedClientQuestions(order: Order, messages: readonly Message[], observations: readonly OrderObservation[] = []): string[] {
+  const questions: string[] = observations.map((observation) => observation.template);
   const latest = newestMessagesFirst(messages.filter((message) => message.orderId === order.id))[0];
   const fields = [
     [order.client, "Ne puteți spune numele dumneavoastră?"],

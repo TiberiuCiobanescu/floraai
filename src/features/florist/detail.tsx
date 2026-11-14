@@ -10,15 +10,16 @@ import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
 import { recommendedClientQuestions } from "./client-questions";
+import { orderObservations } from "./order-observations";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { orders, messages, limits, updateOrder, updateMessage } = useFlorist();
+  const { orders, messages, stock, limits, updateOrder, updateMessage } = useFlorist();
   const original = orders.find((o) => o.id === id);
   const [draft, setDraft] = useState<Order | undefined>(original);
   const [notice, setNotice] = useState("");
   const [question, setQuestion] = useState(() =>
-    original ? recommendedClientQuestions(original, messages)[0] ?? "" : "",
+    original ? recommendedClientQuestions(original, messages, orderObservations(original, stock, limits))[0] ?? "" : "",
   );
   if (!draft)
     return (
@@ -28,7 +29,8 @@ export function OrderDetail({ id }: { id: string }) {
       </>
     );
   const order = draft;
-  const recommendations = recommendedClientQuestions(order, messages);
+  const observations = orderObservations(order, stock, limits);
+  const recommendations = recommendedClientQuestions(order, messages, observations);
   const message = messages.find((m) => m.orderId === id);
   const deadline = modificationDeadline(order, limits);
   const expired = deadline < DEMO_NOW;
@@ -133,6 +135,23 @@ export function OrderDetail({ id }: { id: string }) {
               </p>
             )}
           </div>
+          {observations.length > 0 && (
+            <section className="mb-6" aria-label="Observații comandă">
+              <h3 className="mb-3">Observații</h3>
+              {observations.map((observation) => (
+                <AlertBand key={observation.title} tone="amber">
+                  <div className="min-w-0">
+                    <strong>{observation.title}</strong>
+                    <p className="my-2 text-sm">{observation.detail}</p>
+                    <Button variant="outline" className="h-auto whitespace-normal text-left" onClick={() => setQuestion(observation.template)}>
+                      <MessageCircle className="shrink-0" />
+                      Folosește modelul WhatsApp
+                    </Button>
+                  </div>
+                </AlertBand>
+              ))}
+            </section>
+          )}
           <div className="version-history">
             <h3>
               <History size={17} />
@@ -319,6 +338,11 @@ export function OrderDetail({ id }: { id: string }) {
             <Button
               variant="outline"
               onClick={() => {
+                if (!normalizeText(question) || /\[[^\]]+\]/.test(question)) {
+                  setNotice("Completează modelul de mesaj înainte de trimitere.");
+                  toast.error("Completează modelul de mesaj înainte de trimitere.");
+                  return;
+                }
                 save("Așteaptă clientul");
                 updateMessage(id, "Așteaptă clientul");
                 setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
