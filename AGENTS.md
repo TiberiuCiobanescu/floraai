@@ -33,7 +33,7 @@ use the editor.
 - Keep florist demo data and editable state in a shared React provider; navigation must preserve edits without introducing persistence or external services.
 - Preserve the florist context identity in Vite hot-module data across preview updates; refreshed hooks must read the existing provider without storing SSR state globally.
 - Keep independent content routes for inbox, orders, order detail, inventory, and settings; order detail is un-nested so it does not render inside the orders table.
-- Define florist visual styles and semantic colors in the global design system so every screen uses a consistent palette.
+- Define florist visual styles in the global design system; scope working-screen tokens to AppShell and reuse presentation tokens with readable paper surfaces so both experiences remain visually consistent without changing presentation styles.
 - Use the shared text normalization helpers for human-text comparisons only; keep original input in state and display, and compare IDs and route paths literally.
 - Link follow-up messages through the shared phone-matching helper and append them without mutating orders; confirmation remains an explicit florist action.
 - Keep Framer Motion presentation helpers separate from florist state and honor reduced-motion for transforms, opacity, counters and delays; mount one shared Sonner toaster for action feedback.

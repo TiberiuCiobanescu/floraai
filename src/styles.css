@@ -47,6 +47,14 @@
   --story-shadow: 0 20px 55px color-mix(in oklab, var(--story-ink) 28%, transparent);
   --story-shade: linear-gradient(180deg, color-mix(in oklab, var(--story-ink) 20%, transparent), color-mix(in oklab, var(--story-ink) 35%, transparent));
   --font-story: "Cormorant Garamond", Georgia, serif;
+  --atelier-background: var(--story-pastel-mauve);
+  --atelier-sidebar: var(--story-ink);
+  --atelier-surface: var(--story-paper);
+  --atelier-ink: oklch(0.32 0.035 345);
+  --atelier-muted: oklch(0.49 0.028 345);
+  --atelier-chrome-muted: color-mix(in oklab, var(--story-paper) 78%, var(--atelier-background));
+  --atelier-border: color-mix(in oklab, var(--story-rose) 22%, var(--story-paper));
+  --atelier-shadow: 0 4px 18px color-mix(in oklab, var(--story-ink) 12%, transparent);
   --background: oklch(0.963 0.01 70);
   --foreground: oklch(0.296 0.022 156);
   --primary: oklch(0.539 0.17 5);
@@ -1585,7 +1593,110 @@ blockquote {
   }
 }
 
-/* Isolated visual system for the illustrated presentation. */
+/* Shared presentation palette, with paper surfaces for working screens. */
+.app-shell {
+  --background: var(--atelier-background);
+  --foreground: var(--atelier-ink);
+  --muted-foreground: var(--atelier-muted);
+  --card: var(--atelier-surface);
+  --secondary: color-mix(in oklab, var(--story-pastel-gold) 18%, var(--story-paper));
+  --border: var(--atelier-border);
+  --sidebar-bg: var(--atelier-sidebar);
+  --accent: color-mix(in oklab, var(--story-rose) 16%, var(--story-paper));
+  --shadow-soft: var(--atelier-shadow);
+  background: var(--atelier-background);
+}
+.app-shell .app-sidebar {
+  color: var(--story-paper);
+  border-right-color: var(--story-line);
+}
+.app-shell .brand { color: var(--story-paper); }
+.app-shell .brand > svg { color: var(--story-gold-ink); }
+.app-shell .brand > span { font-family: var(--font-story); font-size: 34px; font-weight: 500; }
+.app-shell .brand-subtitle { color: var(--atelier-chrome-muted); }
+.app-shell .workspace { background: transparent; border-color: var(--story-line); }
+.app-shell .workspace:hover { background: color-mix(in oklab, var(--story-paper) 8%, transparent); }
+.app-shell .workspace-copy small,
+.app-shell .nav-label,
+.app-shell .nav-item,
+.app-shell .profile small { color: var(--atelier-chrome-muted); }
+.app-shell .nav-item.active { color: var(--story-paper); }
+.app-shell .nav-item:hover { background: color-mix(in oklab, var(--story-paper) 8%, transparent); color: var(--story-paper); }
+.app-shell .nav-active-indicator { background: var(--story-pastel-mauve); border: 1px solid var(--story-line); }
+.app-shell .nav-count { background: var(--story-paper); color: var(--story-ink); }
+.app-shell .workspace-icon,
+.app-shell .profile-avatar { background: var(--story-pastel-gold); color: var(--story-ink); }
+.app-shell .profile { border-top-color: var(--story-line); }
+.app-shell .profile:hover { background: color-mix(in oklab, var(--story-paper) 6%, transparent); }
+.app-shell .floral-note { color: var(--story-paper); }
+.app-shell .floral-note p { font-family: var(--font-story); font-size: 25px; font-weight: 500; line-height: 1.1; }
+.app-shell .floral-note span { color: var(--story-paper); }
+.app-shell .floral-note > div > svg { color: var(--story-gold-ink); }
+.app-shell .topbar {
+  background: var(--atelier-background);
+  border-bottom-color: var(--story-line);
+  color: var(--story-paper);
+}
+.app-shell .topbar-start,
+.app-shell .topbar-date { color: var(--atelier-chrome-muted); }
+.app-shell .demo-label { border-color: var(--story-line); }
+.app-shell .page-content { color: var(--story-paper); }
+.app-shell .page-heading {
+  position: relative;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--story-line);
+}
+.app-shell .page-heading h1 { font-family: var(--font-story); font-size: 52px; font-weight: 500; line-height: 1.1; }
+.app-shell .eyebrow { color: var(--story-gold-ink); }
+.app-shell .page-heading p,
+.app-shell .subtle-label,
+.app-shell .list-footer,
+.app-shell .inbox-bottom-note,
+.app-shell .back-link,
+.app-shell .settings-intro p,
+.app-shell .settings-line small,
+.app-shell .number-unit { color: var(--atelier-chrome-muted); }
+.app-shell .heading-actions .border { background: var(--story-paper); color: var(--story-ink); }
+.app-shell .stat-card,
+.app-shell .delivery-card,
+.app-shell .original-card,
+.app-shell .message-list,
+.app-shell .table-container { color: var(--atelier-ink); box-shadow: var(--atelier-shadow); }
+.app-shell .stat-card strong { font-family: var(--font-story); font-size: 42px; font-weight: 500; line-height: 1.15; }
+.app-shell .section-title h2,
+.app-shell .settings-intro h2 { font-family: var(--font-story); font-size: 26px; font-weight: 500; }
+.app-shell .tab-button { color: var(--story-paper); }
+.app-shell .tab-button:hover { background: color-mix(in oklab, var(--story-paper) 10%, transparent); }
+.app-shell .tab-button.selected { background: var(--story-paper); color: var(--story-ink); }
+.app-shell .message-row:hover,
+.app-shell tbody tr:hover { background: var(--secondary); }
+.app-shell tbody tr.low-stock-row:hover { background: var(--accent); }
+.app-shell .settings-section,
+.app-shell .settings-line { border-color: var(--story-line); }
+.app-shell .question-box { background: var(--secondary); color: var(--atelier-ink); }
+.app-shell .question-box button.border { background: var(--story-paper); color: var(--atelier-ink); }
+.app-shell .question-box button.border:hover { background: var(--accent); }
+.app-shell .deadline-block > p,
+.app-shell .version-history p { color: var(--atelier-chrome-muted); }
+.app-shell .version-history p { border-left-color: var(--story-line); }
+.app-shell .settings-intro > svg { color: var(--story-gold-ink); }
+.app-shell .detail-actions button.border { border-color: var(--story-line); }
+.app-shell .detail-actions button.border:hover { color: var(--atelier-ink); }
+.app-shell .order-form .field > small { color: var(--atelier-chrome-muted); }
+.app-shell .add-product { color: var(--story-gold-ink); }
+.app-shell .page-footer { color: var(--atelier-chrome-muted); border-color: var(--story-line); }
+.app-shell .page-footer > svg { color: var(--story-gold-ink); }
+@media (max-width: 800px) {
+  .app-shell .page-heading h1 { font-size: 42px; }
+  .app-shell .stat-card strong { font-size: 34px; }
+}
+@media (max-width: 480px) {
+  .app-shell .page-heading h1 { font-size: 38px; }
+  .app-shell .stat-card strong { font-size: 29px; }
+  .app-shell .inbox-controls .search-field { flex-basis: 100%; }
+}
+
+/* Illustrated presentation. */
 .florio-story { background: var(--story-violet); color: var(--story-white); overflow: clip; }
 .story-scene { position: relative; isolation: isolate; min-height: 100svh; overflow: hidden; }
 .story-hero { min-height: 94svh; }
