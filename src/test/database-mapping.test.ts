@@ -26,8 +26,8 @@ describe("Connected database mapping", () => {
     expect(isLowStock({ quantity: 21, threshold: 20 })).toBe(false);
   });
   it("maps florist validation statuses to the Romanian workflow labels", () => {
-    expect(orderStatusLabels.asteapta_validare).toBe("De validat");
-    expect(orderStatusLabels.respinsa).toBe("Respinsă");
+    expect(orderStatusLabels["asteapta_validare"]).toBe("De validat");
+    expect(orderStatusLabels["respinsa"]).toBe("Respinsă");
   });
   it("reads stem counts from real product composition format", () => {
     expect(parseComposition("trandafir rosu:15;eucalipt:3")).toEqual([{ flower: "trandafir rosu", stems: 15 }, { flower: "eucalipt", stems: 3 }]);
