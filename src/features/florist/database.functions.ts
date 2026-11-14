@@ -6,6 +6,7 @@ import { modificationDeadline, type Order, type OrderType } from "./data";
 import { z } from "zod";
 import { textEquals } from "@/lib/normalize-text";
 import { assertOrderEditable } from "./order-safety";
+import { editableMissingFields } from "./extraction-rules";
 
 // Use the team's existing anon policies, never the service-role key.
 export function databaseClient() {
@@ -62,6 +63,7 @@ const orderSchema = z.object({
   date: z.string(), time: z.string(), address: z.string(), recipient: z.string(), note: z.string(),
   status: z.enum(["Draft", "Așteaptă clientul", "Confirmată", "În lucru", "Executată", "Livrată"]),
   extras: z.string(), versions: z.array(z.string()), question: z.string().optional(), version: z.number().optional(),
+  missingFields: z.array(z.string()).optional(),
   products: z.array(z.object({ id: z.string().optional(), lineId: z.number().optional(), name: z.string(), quantity: z.number().int().positive(), extras: z.string().optional(), composition: z.string().optional() })),
 });
 export const saveFloristOrder = createServerFn({ method: "POST" }).inputValidator(orderSchema).handler(async ({ data }) => {
@@ -79,6 +81,8 @@ export const saveFloristOrder = createServerFn({ method: "POST" }).inputValidato
   const { data: current, error: readError } = await client.from("comenzi").select("versiune,status").eq("id", data.id).single();
   if (readError || !current) throw new Error("Comanda nu a putut fi citită.");
   assertOrderEditable(current.status);
+  const missingFields = editableMissingFields(data);
+  if (data.status === "Confirmată" && missingFields.length) throw new Error("Completează câmpurile lipsă înainte de confirmare.");
   if (data.version !== undefined && data.version !== current.versiune) throw new Error("Comanda a fost modificată între timp. Reîncarcă datele înainte de salvare.");
   const { data: existingClient, error: clientReadError } = await client.from("clienti").select("tip").eq("telefon", data.phone).maybeSingle();
   if (clientReadError || !existingClient) throw new Error("Selectează un client existent înainte de salvare.");
@@ -88,6 +92,7 @@ export const saveFloristOrder = createServerFn({ method: "POST" }).inputValidato
     telefon: data.phone, tip_comanda: technicalValue(orderTypeLabels, data.type), data_livrare: data.date || null, interval: data.time || null,
     adresa: data.address, destinatar: data.recipient, bilet: data.note, status: technicalValue(orderStatusLabels, data.status),
     intrebare_client: data.question ?? null, versiune: current.versiune + 1,
+    campuri_lipsa: missingFields,
     termen_modificare: Number.isFinite(deadline.getTime()) ? new Date(deadline.getTime() + 2 * 3600000).toISOString().slice(0, 19) : null,
   }).eq("id", data.id).eq("versiune", current.versiune).select("id").single();
   if (error) throw new Error("Comanda nu a putut fi salvată. Reîncarcă datele înainte de a reîncerca.");

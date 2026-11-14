@@ -1,0 +1,1 @@
+DO $$ DECLARE v_definition text; BEGIN SELECT pg_get_functiondef('public.aplica_extragere_comanda(text[],jsonb,text,integer)'::regprocedure) INTO v_definition; v_definition:=replace(v_definition, 'IF p_comanda IS NOT NULL THEN', 'IF nullif(p_comanda,'''') IS NOT NULL THEN'); EXECUTE v_definition; END $$;

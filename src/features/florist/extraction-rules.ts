@@ -8,7 +8,7 @@ export function mandatoryFields(result: ExtractedOrder) {
     ...(!result.destinatar?.trim() ? ["destinatar"] : []),
   ])];
 }
-export function editableMissingFields(order: { date: string; address: string; recipient: string; products: { name: string; quantity: number }[]; missingFields?: string[] }) {
+export function editableMissingFields(order: { date: string; address: string; recipient: string; products: { name: string; quantity: number }[]; missingFields?: string[] | undefined }) {
   return [...new Set([
     ...(!order.date ? ["data_livrare"] : []),
     ...(!order.address.trim() ? ["adresa"] : []),

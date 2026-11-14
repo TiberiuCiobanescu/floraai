@@ -39,7 +39,7 @@ use the editor.
 - Keep independent content routes for inbox, orders, order detail, inventory, and settings; order detail is un-nested so it does not render inside the orders table.
 - Define florist visual styles in the global design system; scope working-screen tokens to AppShell and reuse presentation tokens with readable paper surfaces so both experiences remain visually consistent without changing presentation styles.
 - Use the shared text normalization helpers for human-text comparisons only; keep original input in state and display, and compare IDs and route paths literally.
-- Link follow-up messages through the shared phone-matching helper and append them without mutating orders; confirmation remains an explicit florist action.
+- Process imported message groups through a server-only structured AI call and an invoker database transaction; validate the catalog, missing fields, deadlines and current version before applying changes to avoid partial writes.
 - Keep Framer Motion presentation helpers separate from florist state and honor reduced-motion for transforms, opacity, counters and delays; mount one shared Sonner toaster for action feedback.
 - Keep the illustrated presentation at / outside AppShell and the inbox at /inbox; retain the root florist provider so entering the presentation does not discard edits.
 - Derive shell selection, active navigation, and page animation keys from committed route matches, not the requested location, so pending navigation cannot frame the previous page as the destination.
@@ -49,5 +49,6 @@ use the editor.
 - Sort Inbox views using full received timestamps on a copied message list, so filters remain newest-first without mutating shared data.
 - Derive client-question suggestions locally from the editable order and latest linked message; selecting a suggestion only changes the editable question, never sends or confirms an order.
 - Represent recommended questions with explicit short labels and personalized templates rather than inferring labels from message text; all applicable question types fill the same editable composer.
-- Derive order observations from saved deadline settings and current stock using explicit flower aliases and summed stem demand; unknown bouquet recipes require manual checking, and WhatsApp templates remain editable simulated messages without stock reservations or automatic substitutions.
+- Derive order observations from saved deadline settings and current stock using explicit flower aliases and summed stem demand; unknown recipes require manual checking, and editable WhatsApp templates open click-to-chat without claiming delivery or reserving stock.
+- Keep imported raw messages durable before AI processing and process consecutive same-phone groups sequentially; deduplicate reimports and propagate Stop to avoid duplicate billed work.
 - Show deadline and stock templates as separate choices within recommended client questions, not additional message editors; each selection fills the existing editable WhatsApp question with current client, recipient, delivery and product details.

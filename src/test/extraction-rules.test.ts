@@ -1,0 +1,8 @@
+import {it,expect} from "vitest";
+import {mandatoryFields,editableMissingFields} from "@/features/florist/extraction-rules";
+import type {ExtractedOrder} from "@/features/florist/extraction-schema";
+const result:ExtractedOrder={tip_mesaj:"comanda_noua",telefon:"",tip_comanda:"buchet_oras",produse:[],auxiliare:[],data_livrare:null,interval:null,adresa:null,destinatar:null,bilet:null,campuri_lipsa:[],intrebare_client:null,rezumat:""};
+it("requires products, delivery date, address and recipient",()=>{expect(mandatoryFields(result)).toEqual(["produse","data_livrare","adresa","destinatar"]);});
+it("does not require an interval",()=>{expect(mandatoryFields({...result,produse:[{nume_catalog:"P",cantitate:1}],data_livrare:"2026-11-14",adresa:"A",destinatar:"Ana"})).toEqual([]);});
+it("does not request order fields for a price question",()=>{expect(mandatoryFields({...result,tip_mesaj:"intrebare_pret",campuri_lipsa:["adresa"]})).toEqual([]);});
+it("blocks a draft until the ambiguous product is resolved",()=>{expect(editableMissingFields({date:"2026-11-14",address:"A",recipient:"Ana",products:[{name:"P",quantity:1}],missingFields:["produs"]})).toEqual(["produs"]);});
