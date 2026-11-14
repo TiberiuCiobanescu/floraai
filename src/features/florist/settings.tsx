@@ -3,6 +3,7 @@ import { Save, Clock3, Sprout, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeading } from "./shared";
 import { useFlorist } from "./store";
+import { textEquals } from "@/lib/normalize-text";
 export function SettingsPage() {
   const { stock, setStock, limits, setLimits } = useFlorist();
   const [draftStock, setDraftStock] = useState(stock);
@@ -38,7 +39,9 @@ export function SettingsPage() {
               <div>
                 <strong>{type}</strong>
                 <small>
-                  {type === "Nuntă" ? "Aranjamente și evenimente" : "Buchete cu livrare locală"}
+                  {textEquals(type, "Nuntă")
+                    ? "Aranjamente și evenimente"
+                    : "Buchete cu livrare locală"}
                 </small>
               </div>
               <div className="number-unit">

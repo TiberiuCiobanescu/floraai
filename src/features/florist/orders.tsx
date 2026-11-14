@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeading, StatusBadge } from "./shared";
 import { useFlorist } from "./store";
 import { dateLabel, productSummary, modificationDeadline, canMarkExecuted, DEMO_NOW } from "./data";
+import { textEquals, textIncludes } from "@/lib/normalize-text";
 export function OrdersPage() {
   const { orders, updateOrder, limits } = useFlorist();
   const [search, setSearch] = useState("");
@@ -12,8 +13,18 @@ export function OrdersPage() {
   const filtered = orders
     .filter(
       (o) =>
-        o.client.toLowerCase().includes(search.toLowerCase()) &&
-        (status === "Toate statusurile" || o.status === status),
+        textIncludes(
+          [
+            o.client,
+            o.phone,
+            ...o.products.map((p) => p.name),
+            o.extras,
+            o.address,
+            o.recipient,
+          ].join(" "),
+          search,
+        ) &&
+        (textEquals(status, "Toate statusurile") || textEquals(o.status, status)),
     )
     .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
   return (

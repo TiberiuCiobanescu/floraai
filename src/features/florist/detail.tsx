@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useFlorist } from "./store";
 import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
 import { modificationDeadline, DEMO_NOW, dateLabel, type Order } from "./data";
+import { normalizeText, textEquals } from "@/lib/normalize-text";
 export function OrderDetail({ id }: { id: string }) {
   const { orders, messages, limits, updateOrder, updateMessage } = useFlorist();
   const original = orders.find((o) => o.id === id);
@@ -25,9 +26,10 @@ export function OrderDetail({ id }: { id: string }) {
   const deadline = modificationDeadline(order, limits);
   const expired = deadline < DEMO_NOW;
   const required = ["client", "phone", "address", "recipient"] as const;
-  const missing = required.filter((k) => !order[k].trim());
+  const missing = required.filter((k) => !normalizeText(order[k]));
   const missingProduct =
-    order.products.length === 0 || order.products.some((p) => !p.name.trim() || p.quantity < 1);
+    order.products.length === 0 ||
+    order.products.some((p) => !normalizeText(p.name) || p.quantity < 1);
   function change<K extends keyof Order>(key: K, value: Order[K]) {
     setDraft((prev) => (prev ? { ...prev, [key]: value } : prev));
     setNotice("");
@@ -38,7 +40,7 @@ export function OrderDetail({ id }: { id: string }) {
       status,
       versions: [
         ...order.versions,
-        `v${order.versions.length + 1} · 14 nov., 12:00 · ${status === "Confirmată" ? "Comandă confirmată" : "Detalii actualizate"}`,
+        `v${order.versions.length + 1} · 14 nov., 12:00 · ${textEquals(status, "Confirmată") ? "Comandă confirmată" : "Detalii actualizate"}`,
       ],
     };
     updateOrder(next);
@@ -162,7 +164,7 @@ export function OrderDetail({ id }: { id: string }) {
               <select
                 value={order.type}
                 onChange={(e) =>
-                  change("type", e.target.value === "Nuntă" ? "Nuntă" : "Buchet în oraș")
+                  change("type", textEquals(e.target.value, "Nuntă") ? "Nuntă" : "Buchet în oraș")
                 }
               >
                 <option>Buchet în oraș</option>

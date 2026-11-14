@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { useFlorist } from "./store";
 import { isOverdue, type Order } from "./data";
 import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
+import { normalizeText, textEquals, textIncludes } from "@/lib/normalize-text";
 export function InboxPage() {
   const { messages, orders, addOrder } = useFlorist();
   const [tab, setTab] = useState("Toate mesajele");
@@ -26,21 +27,21 @@ export function InboxPage() {
   const [text, setText] = useState("");
   const [source, setSource] = useState<"Fizic" | "Telefon">("Fizic");
   const navigate = useNavigate();
-  const fresh = messages.filter((m) => m.status === "Nou").length;
-  const waiting = messages.filter((m) => m.status === "Așteaptă clientul").length;
+  const fresh = messages.filter((m) => textEquals(m.status, "Nou")).length;
+  const waiting = messages.filter((m) => textEquals(m.status, "Așteaptă clientul")).length;
   const overdue = messages.filter(isOverdue).length;
   const filtered = useMemo(
     () =>
       messages.filter(
         (m) =>
-          (tab === "Toate mesajele" || m.status === tab) &&
-          (channel === "Toate canalele" || m.channel === channel) &&
-          `${m.client} ${m.text}`.toLowerCase().includes(search.toLowerCase()),
+          (textEquals(tab, "Toate mesajele") || textEquals(m.status, tab)) &&
+          (textEquals(channel, "Toate canalele") || textEquals(m.channel, channel)) &&
+          textIncludes(`${m.client} ${m.text}`, search),
       ),
     [messages, tab, channel, search],
   );
   function create() {
-    if (!text.trim()) return;
+    if (!normalizeText(text)) return;
     const id = String(1000 + orders.length + 1);
     const order: Order = {
       id,
@@ -108,7 +109,7 @@ export function InboxPage() {
           },
           {
             label: "Confirmate",
-            value: messages.filter((m) => m.status === "Confirmat").length,
+            value: messages.filter((m) => textEquals(m.status, "Confirmat")).length,
             icon: CircleCheck,
             tone: "green",
             caption: "Gata pentru următorul pas",
@@ -149,11 +150,11 @@ export function InboxPage() {
               <Button
                 variant="ghost"
                 key={t}
-                className={`tab-button ${tab === t ? "selected" : ""}`}
+                className={`tab-button ${textEquals(tab, t) ? "selected" : ""}`}
                 onClick={() => setTab(t)}
               >
-                {t === "Nou" ? "Noi" : t === "Confirmat" ? "Confirmate" : t}
-                {t === "Nou" && <span>{fresh}</span>}
+                {textEquals(t, "Nou") ? "Noi" : textEquals(t, "Confirmat") ? "Confirmate" : t}
+                {textEquals(t, "Nou") && <span>{fresh}</span>}
               </Button>
             ))}
           </div>
@@ -194,7 +195,7 @@ export function InboxPage() {
               to="/comenzi/$id"
               params={{ id: m.orderId }}
               key={m.id}
-              className={`message-row ${m.status === "Nou" ? "unread" : ""}`}
+              className={`message-row ${textEquals(m.status, "Nou") ? "unread" : ""}`}
             >
               <div className="message-main">
                 <span className={`client-avatar avatar-${i % 4}`}>
@@ -208,7 +209,7 @@ export function InboxPage() {
                   <div className="message-client">
                     <strong>{m.client}</strong>
                     <span>{m.time}</span>
-                    {m.status === "Nou" && <i />}
+                    {textEquals(m.status, "Nou") && <i />}
                   </div>
                   <p>{m.text}</p>
                   <Channel value={m.channel} />
@@ -252,7 +253,9 @@ export function InboxPage() {
             Canal
             <select
               value={source}
-              onChange={(e) => setSource(e.target.value === "Telefon" ? "Telefon" : "Fizic")}
+              onChange={(e) =>
+                setSource(textEquals(e.target.value, "Telefon") ? "Telefon" : "Fizic")
+              }
             >
               <option>Fizic</option>
               <option>Telefon</option>
@@ -267,7 +270,7 @@ export function InboxPage() {
               placeholder="Ex. Un buchet de 15 trandafiri roșii, pentru mâine…"
             />
           </label>
-          <Button disabled={!text.trim()} onClick={create}>
+          <Button disabled={!normalizeText(text)} onClick={create}>
             <Plus />
             Adaugă comanda
           </Button>

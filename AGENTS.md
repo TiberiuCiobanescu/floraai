@@ -34,3 +34,4 @@ use the editor.
 - Preserve the florist context identity in Vite hot-module data across preview updates; refreshed hooks must read the existing provider without storing SSR state globally.
 - Keep independent content routes for inbox, orders, order detail, inventory, and settings; order detail is un-nested so it does not render inside the orders table.
 - Define florist visual styles and semantic colors in the global design system so every screen uses a consistent palette.
+- Use the shared text normalization helpers for human-text comparisons only; keep original input in state and display, and compare IDs and route paths literally.

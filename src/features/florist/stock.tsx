@@ -2,6 +2,7 @@ import { Sprout, Truck, CalendarDays } from "lucide-react";
 import { PageHeading, AlertBand, StatusBadge } from "./shared";
 import { useFlorist } from "./store";
 import { isLowStock } from "./data";
+import { textEquals } from "@/lib/normalize-text";
 export function StockPage() {
   const { stock } = useFlorist();
   const low = stock.filter(isLowStock);
@@ -16,8 +17,8 @@ export function StockPage() {
         <AlertBand key={s.name}>
           <strong>
             Au rămas {s.quantity} de{" "}
-            {s.name === "Trandafir roșu" ? "trandafiri roșii" : s.name.toLowerCase()} (pragul e{" "}
-            {s.threshold})
+            {textEquals(s.name, "Trandafir roșu") ? "trandafiri roșii" : s.name.toLowerCase()}{" "}
+            (pragul e {s.threshold})
           </strong>
           <span className="alert-extra">Stoc redus</span>
         </AlertBand>

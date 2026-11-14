@@ -1,3 +1,5 @@
+import { textEquals } from "@/lib/normalize-text";
+
 export type OrderStatus =
   "Draft" | "Așteaptă clientul" | "Confirmată" | "În lucru" | "Executată" | "Livrată";
 export type OrderType = "Buchet în oraș" | "Nuntă";
@@ -219,7 +221,7 @@ export const initialStock = [
 ];
 export const initialLimits = { "Buchet în oraș": 3, Nuntă: 72 };
 export function canMarkExecuted(status: OrderStatus) {
-  return status === "Confirmată" || status === "În lucru";
+  return textEquals(status, "Confirmată") || textEquals(status, "În lucru");
 }
 export function modificationDeadline(order: Order, limits: Record<OrderType, number>) {
   return new Date(
@@ -228,7 +230,7 @@ export function modificationDeadline(order: Order, limits: Record<OrderType, num
 }
 export function isOverdue(message: Message) {
   return (
-    message.status === "Nou" &&
+    textEquals(message.status, "Nou") &&
     DEMO_NOW.getTime() - new Date(message.received).getTime() > 2 * 3600000
   );
 }
@@ -242,5 +244,5 @@ export function dateLabel(date: string) {
   });
 }
 export function productSummary(order: Order) {
-  return order.products.map((p) => `${p.quantity} ${p.name.toLowerCase()}`).join(", ");
+  return order.products.map((p) => `${p.quantity} ${p.name}`).join(", ");
 }

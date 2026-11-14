@@ -20,6 +20,7 @@ import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { useFlorist } from "./store";
 import bouquet from "@/assets/floral-still-life.jpg";
+import { textEquals } from "@/lib/normalize-text";
 const items = [
   { label: "Inbox", to: "/" as const, icon: Inbox },
   { label: "Comenzi", to: "/comenzi" as const, icon: ClipboardList },
@@ -30,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { messages } = useFlorist();
-  const unread = messages.filter((m) => m.status === "Nou").length;
+  const unread = messages.filter((m) => textEquals(m.status, "Nou")).length;
   return (
     <div className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
       <aside className="app-sidebar">
@@ -148,11 +149,16 @@ export function PageHeading({
 }
 export function StatusBadge({ value }: { value: string }) {
   let tone = "neutral";
-  if (["Nou", "Draft", "Stoc redus"].includes(value)) tone = "rose";
-  if (["Confirmat", "Confirmată", "Livrată", "Executată", "În regulă"].includes(value))
+  if (["Nou", "Draft", "Stoc redus"].some((status) => textEquals(status, value))) tone = "rose";
+  if (
+    ["Confirmat", "Confirmată", "Livrată", "Executată", "În regulă"].some((status) =>
+      textEquals(status, value),
+    )
+  )
     tone = "green";
-  if (["Așteaptă clientul", "În lucru", "Modificare"].includes(value)) tone = "amber";
-  if (value === "Comandă nouă") tone = "green";
+  if (["Așteaptă clientul", "În lucru", "Modificare"].some((status) => textEquals(status, value)))
+    tone = "amber";
+  if (textEquals(value, "Comandă nouă")) tone = "green";
   return (
     <span className={`status-badge ${tone}`}>
       <span />
@@ -161,7 +167,11 @@ export function StatusBadge({ value }: { value: string }) {
   );
 }
 export function Channel({ value }: { value: string }) {
-  const Icon = value === "WhatsApp" ? MessageCircle : value === "Telefon" ? Phone : Store;
+  const Icon = textEquals(value, "WhatsApp")
+    ? MessageCircle
+    : textEquals(value, "Telefon")
+      ? Phone
+      : Store;
   return (
     <span className="channel">
       <Icon size={13} />
