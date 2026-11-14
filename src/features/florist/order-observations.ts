@@ -1,7 +1,8 @@
+import { parseComposition } from "./database-mapping";
 import { normalizeText, textEquals } from "@/lib/normalize-text";
 import { DEMO_NOW, modificationDeadline, productSummary, type Order, type OrderType, type Message } from "./data";
 
-type StockItem = { name: string; quantity: number };
+type StockItem = { name: string; quantity: number; key?: string };
 export type OrderObservation = { kind: "deadline" | "shortage" | "unknown"; title: string; detail: string; template: string };
 
 // Explicit flower aliases only: a bouquet/arrangement has no known stem recipe.
@@ -9,7 +10,7 @@ const aliases: Record<string, string> = {
   "trandafiri rosii": "trandafir rosu", "trandafiri albi": "trandafir alb",
   lalele: "lalea", "frezii albe": "frezie", frezii: "frezie",
   crini: "crin", bujori: "bujor", "gerbera roz": "gerbera",
-  eustoma: "lisianthus",
+
 };
 
 export function orderObservations(order: Order, stock: readonly StockItem[], limits: Record<OrderType, number>, now = DEMO_NOW, _messages: readonly Message[] = []): OrderObservation[] {
@@ -21,7 +22,7 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
   const context = `Comanda #${order.id}: ${productSummary(order) || "[completează produsele]"}, pentru ${order.recipient || "[completează destinatarul]"}, cu livrare pe ${deliveryDate}, ${order.time}${normalizeText(order.address) ? `, la ${order.address}` : ""}.`;
   const deadline = modificationDeadline(order, limits);
   if (Number.isFinite(deadline.getTime())) {
-    const formatted = deadline.toLocaleString("ro-RO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    const formatted = deadline.toLocaleString("ro-RO", { day: "numeric", month: "short", timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" });
     const expired = deadline < now;
     observations.push({
       kind: "deadline",
@@ -37,6 +38,18 @@ export function orderObservations(order: Order, stock: readonly StockItem[], lim
   for (const product of order.products) {
     const name = normalizeText(product.name);
     if (!name || product.quantity < 1) continue;
+    if (product.composition) {
+      try {
+        const stems = parseComposition(product.composition);
+        if (normalizeText(product.extras ?? "").includes("verdeata")) stems.push({ flower: "eucalipt", stems: 3 });
+        for (const stem of stems) {
+          const item = stock.find((entry) => normalizeText(entry.key ?? entry.name) === normalizeText(stem.flower));
+          if (item) demand.set(item, (demand.get(item) ?? 0) + stem.stems * product.quantity);
+          else unknown.add(stem.flower);
+        }
+      } catch { unknown.add(product.name); }
+      continue;
+    }
     const canonical = aliases[name] ?? name;
     const item = stock.find((entry) => normalizeText(entry.name) === canonical);
     if (item) demand.set(item, (demand.get(item) ?? 0) + product.quantity);

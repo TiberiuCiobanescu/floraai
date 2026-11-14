@@ -1,5 +1,7 @@
 # FloraAI
-- [ ] Înlocuirea datelor mock cu tabelele existente ale echipei, salvarea setărilor și execuția cu scădere de stoc, fără schimbări de design sau structură. Blocaj: proiectul nu are conexiune la serviciul de date al echipei, configurație de acces sau chei disponibile; este necesară conectarea proiectului extern în Settings → General → External Supabase → Connect.
+- [x] Înlocuirea completă a datelor mock cu tabelele conectate, verificarea stocului cu 11 flori / 75 fire de trandafir roșu și documentarea tabelelor pe ecran.
+- [x] Conectarea salvării setărilor și comenzilor la tabelele existente; salvarea setărilor verificată cu reîncărcare și restabilirea valorilor inițiale.
+- [ ] Execuție atomică cu scădere de stoc: necesită aprobarea unei funcții tranzacționale în baza echipei; nu există funcții și tabelele nu trebuie modificate. Butonul nu simulează succesul.
 - [x] Observații pentru termen și disponibilitatea florilor, cu modele WhatsApp editabile și verificare pe calculator și telefon.
 - [x] Simplificarea celor trei secțiuni centrale cu compoziții grafice animate pentru promovarea aplicației, fără schimbarea aplicației.
 - [x] Înlocuirea secțiunilor Haosul, Cifrele și Ordinea cu prezentarea aplicației, ecranelor și Inboxului real; păstrarea florilor și animațiilor.

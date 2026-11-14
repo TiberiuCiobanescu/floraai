@@ -6,15 +6,16 @@ import { useFlorist } from "./store";
 import { textEquals } from "@/lib/normalize-text";
 import { toast } from "sonner";
 export function SettingsPage() {
-  const { stock, setStock, limits, setLimits } = useFlorist();
+  const { stock, limits, saveSettings } = useFlorist();
   const [draftStock, setDraftStock] = useState(stock);
   const [draftLimits, setDraftLimits] = useState(limits);
   const [saved, setSaved] = useState(false);
-  function save() {
-    setStock(draftStock);
-    setLimits(draftLimits);
-    setSaved(true);
-    toast.success("Setări salvate");
+  async function save() {
+    try {
+      await saveSettings(draftStock, draftLimits);
+      setSaved(true);
+      toast.success("Setări salvate");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Setările nu au fost salvate."); }
   }
   return (
     <>

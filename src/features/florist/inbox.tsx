@@ -20,6 +20,7 @@ import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
 import { normalizeText, textEquals, textIncludes } from "@/lib/normalize-text";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedCount, useEntrance } from "./motion";
+import { toast } from "sonner";
 import { newestMessagesFirst } from "./message-order";
 const MessageLink = forwardRef<HTMLAnchorElement, { orderId: string; className: string; children: ReactNode }>(
   ({ orderId, ...props }, ref) => <Link ref={ref} to="/comenzi/$id" params={{ id: orderId }} {...props} />,
@@ -28,7 +29,7 @@ const MotionLink = motion.create(MessageLink);
 export function InboxPage() {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { messages, orders, addOrder } = useFlorist();
+  const { messages } = useFlorist();
   const [tab, setTab] = useState("Toate mesajele");
   const [search, setSearch] = useState("");
   const [channel, setChannel] = useState("Toate canalele");
@@ -53,36 +54,7 @@ export function InboxPage() {
   );
   function create() {
     if (!normalizeText(text)) return;
-    const id = String(1000 + orders.length + 1);
-    const order: Order = {
-      id,
-      client: "Client nou",
-      phone: "",
-      type: "Buchet în oraș",
-      products: [{ name: "", quantity: 1 }],
-      extras: "",
-      date: "2026-11-14",
-      time: "15:00–17:00",
-      address: "",
-      recipient: "",
-      note: "",
-      status: "Draft",
-      versions: [],
-    };
-    addOrder(order, {
-      id: `m${Date.now()}`,
-      orderId: id,
-      client: order.client,
-      phone: order.phone,
-      time: "12:00",
-      received: "2026-11-14T12:00:00",
-      text,
-      channel: source,
-      type: "Comandă nouă",
-      status: "Nou",
-    });
-    setOpen(false);
-    navigate({ to: "/comenzi/$id", params: { id } });
+    toast.error("Crearea comenzilor din mesaje nu este încă conectată. Nu s-a adăugat o comandă fictivă.");
   }
   return (
     <>

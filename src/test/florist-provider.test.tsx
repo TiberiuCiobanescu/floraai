@@ -1,17 +1,11 @@
 import { fireEvent, render, screen, cleanup } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { FloristProvider, useFlorist } from "@/features/florist/store";
 
+vi.mock("@tanstack/react-query", () => ({ queryOptions: (options: unknown) => options, useSuspenseQuery: () => ({ data: { orders: [], messages: [], stock: [], limits: {} } }), useQueryClient: () => ({ invalidateQueries: vi.fn() }) }));
+vi.mock("@tanstack/react-start", () => ({ useServerFn: () => vi.fn() }));
+vi.mock("@/features/florist/database.functions", () => ({ getFloristData: vi.fn(), saveFloristOrder: vi.fn(), saveFloristSettings: vi.fn(), saveMessageStatus: vi.fn() }));
 afterEach(cleanup);
-
-function SettingsConsumer() {
-  const { limits, setLimits } = useFlorist();
-  return (
-    <button onClick={() => setLimits({ ...limits, "Buchet în oraș": 5 })}>
-      {limits["Buchet în oraș"]}
-    </button>
-  );
-}
 
 function ProfileConsumer() {
   const { profile, setProfile } = useFlorist();
@@ -35,11 +29,5 @@ describe("Florist provider", () => {
     fireEvent.click(screen.getByRole("button", { name: "Atelierul meu" }));
     view.rerender(<FloristProvider><ProfileConsumer key="next-page" /></FloristProvider>);
     expect(screen.getByRole("button", { name: "Aylin" })).toBeInTheDocument();
-  });
-  it("keeps saved settings available when a route consumer remounts", () => {
-    const view = render(<FloristProvider><SettingsConsumer key="initial" /></FloristProvider>);
-    fireEvent.click(screen.getByRole("button", { name: "3" }));
-    view.rerender(<FloristProvider><SettingsConsumer key="next-route" /></FloristProvider>);
-    expect(screen.getByRole("button", { name: "5" })).toBeInTheDocument();
   });
 });

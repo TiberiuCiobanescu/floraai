@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { normalizeText, textEquals, textIncludes } from "@/lib/normalize-text";
-import { initialStock, productSummary, initialOrders } from "@/features/florist/data";
+import { productSummary } from "@/features/florist/data";
+import { initialStock, initialOrders } from "./florist-fixtures";
 
 describe("Comparisons without Romanian diacritics", () => {
   it("normalizes lowercase, Romanian diacritics and surrounding spaces", () => {

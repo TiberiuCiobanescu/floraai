@@ -1,50 +1,34 @@
 import { createContext, useContext, useState, type Context, type ReactNode } from "react";
-import {
-  initialOrders,
-  initialMessages,
-  initialStock,
-  initialLimits,
-  linkMessageToOrder,
-  type Order,
-  type Message,
-} from "./data";
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { floristQueryOptions } from "./database-query";
+import { saveFloristOrder, saveFloristSettings, saveMessageStatus } from "./database.functions";
+import { toast } from "sonner";
+import type { Order } from "./data";
 function useFloristState() {
-  const [orders, setOrders] = useState(initialOrders);
-  const [messages, setMessages] = useState(initialMessages);
-  const [stock, setStock] = useState(initialStock);
-  const [limits, setLimits] = useState(initialLimits);
+  const { data } = useSuspenseQuery(floristQueryOptions);
+  const queryClient = useQueryClient();
+  const saveOrder = useServerFn(saveFloristOrder);
+  const saveSettingsFn = useServerFn(saveFloristSettings);
+  const saveStatus = useServerFn(saveMessageStatus);
   const [profile, setProfile] = useState({ name: "Atelierul meu", description: "Florărie independentă", initials: "AZ" });
   const [workspace, setWorkspace] = useState({ name: "Atelier de flori", location: "București, România" });
-  const updateOrder = (order: Order) =>
-    setOrders((prev) => prev.map((o) => (o.id === order.id ? order : o)));
-  const updateMessage = (orderId: string, status: string) =>
-    setMessages((prev) => prev.map((m) => (m.orderId === orderId ? { ...m, status } : m)));
-  const addOrder = (order: Order, message: Message) => {
-    setOrders((prev) => [...prev, order]);
-    setMessages((prev) => [message, ...prev]);
-  };
-  const addMessage = (message: Omit<Message, "orderId">) => {
-    const linked = linkMessageToOrder(message, orders);
-    if (!linked) return false;
-    setMessages((prev) => [...prev, linked]);
-    return true;
-  };
-  return {
-    orders,
-    messages,
-    stock,
-    limits,
-    profile,
-    setProfile,
-    workspace,
-    setWorkspace,
-    setStock,
-    setLimits,
-    updateOrder,
-    updateMessage,
-    addOrder,
-    addMessage,
-  };
+  async function refresh() {
+    await queryClient.invalidateQueries({ queryKey: floristQueryOptions.queryKey });
+  }
+  async function updateOrder(order: Order) {
+    try { await saveOrder({ data: order }); await refresh(); return true; }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Comanda nu a fost salvată."); return false; }
+  }
+  async function updateMessage(orderId: string, status: string) {
+    await saveStatus({ data: { orderId, status } });
+    await refresh();
+  }
+  async function saveSettings(stock: typeof data.stock, limits: typeof data.limits) {
+    await saveSettingsFn({ data: { stock, limits } });
+    await refresh();
+  }
+  return { ...data, profile, setProfile, workspace, setWorkspace, updateOrder, updateMessage, saveSettings };
 }
 type FloristValue = ReturnType<typeof useFloristState>;
 // An open preview can retain the old provider while a route receives the refreshed hook.

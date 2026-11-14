@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { clientQuestionOptions, recommendedClientQuestions } from "@/features/florist/client-questions";
-import { initialMessages, initialOrders } from "@/features/florist/data";
+import { initialMessages, initialOrders } from "./florist-fixtures";
 
 const bouquet = initialOrders[0];
 if (!bouquet) throw new Error("Missing bouquet fixture");

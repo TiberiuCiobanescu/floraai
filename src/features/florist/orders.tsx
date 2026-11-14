@@ -108,7 +108,7 @@ export function OrdersPage() {
                   <td className={deadline < DEMO_NOW ? "expired-text" : ""}>
                     {dateLabel(deadline.toISOString().slice(0, 10))}
                     <small>
-                      {deadline.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                      {deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" })}
                       {deadline < DEMO_NOW ? " · Expirat" : ""}
                     </small>
                   </td>
@@ -117,9 +117,8 @@ export function OrdersPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          updateOrder({ ...o, status: "Executată" });
-                          toast.success("Comanda a fost marcată executată");
+                        onClick={async () => {
+                          if (await updateOrder({ ...o, status: "Executată" })) toast.success("Comanda a fost marcată executată");
                         }}
                       >
                         <Check />

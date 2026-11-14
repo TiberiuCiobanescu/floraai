@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { orderObservations } from "@/features/florist/order-observations";
-import { initialOrders, initialStock, initialLimits } from "@/features/florist/data";
+import { initialOrders, initialStock, initialLimits } from "./florist-fixtures";
 import { recommendedClientQuestions } from "@/features/florist/client-questions";
 
 const order = initialOrders[1];
 if (!order) throw new Error("Missing order fixture");
 describe("Observații pentru termen și stoc", () => {
   it("recalculează observația termenului din setările 3/1 ore", () => {
-    expect(orderObservations(order, initialStock, initialLimits)[0]?.title).toBe("Termenul de modificare a trecut");
+    expect(orderObservations(order, initialStock, initialLimits, new Date("2026-11-14T12:00:00+02:00"))[0]?.title).toBe("Termenul de modificare a trecut");
     expect(orderObservations(order, initialStock, { ...initialLimits, "Buchet în oraș": 1 })[0]?.title).toBe("Termenul de modificare este deschis");
   });
   it("însumează firele aceluiași produs fără diacritice și raportează lipsa exactă", () => {

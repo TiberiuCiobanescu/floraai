@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { initialMessages } from "@/features/florist/data";
+import { initialMessages } from "./florist-fixtures";
 import { newestMessagesFirst } from "@/features/florist/message-order";
 
 describe("Inbox chronological order", () => {
   it("shows the last received message first without changing the source list", () => {
     const originalIds = initialMessages.map((message) => message.id);
     expect(newestMessagesFirst(initialMessages).map((message) => message.id)).toEqual([
-      "m9", "m8", "m7", "m6", "m5", "m4", "m3", "m2", "m1",
+      "m9", "m8", "m2", "m1",
     ]);
     expect(initialMessages.map((message) => message.id)).toEqual(originalIds);
   });

@@ -1,14 +1,15 @@
 import { Sprout, Truck, CalendarDays } from "lucide-react";
 import { PageHeading, AlertBand, StatusBadge } from "./shared";
 import { useFlorist } from "./store";
-import { isLowStock } from "./data";
+import { isLowStock, dateLabel } from "./data";
 import { textEquals } from "@/lib/normalize-text";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
+import { flowerLabel } from "./database-mapping";
 export function StockPage() {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { stock } = useFlorist();
+  const { stock, deliveries } = useFlorist();
   const low = stock.filter(isLowStock);
   return (
     <>
@@ -77,39 +78,23 @@ export function StockPage() {
           <Truck size={20} />
         </div>
         <div className="delivery-grid">
-          {[
-            {
-              name: "Flora Holland",
-              date: "16 nov. · 08:00–10:00",
-              flowers: "100 trandafiri roșii · 60 frezii · 40 crini",
-              waiting: 3,
-            },
-            {
-              name: "Grădina de lângă noi",
-              date: "17 nov. · 09:00–12:00",
-              flowers: "50 trandafiri albi · 30 eucalipt · 40 lisianthus",
-              waiting: 2,
-            },
-          ].map((s, i) => (
-            <motion.article className="delivery-card" key={s.name} {...entrance}
+          {deliveries.map((s, i) => (
+            <motion.article className="delivery-card" key={s.id} {...entrance}
               transition={{ ...entrance.transition, delay: reduced ? 0 : i * 0.05 }}
               whileHover={reduced ? {} : { y: -2 }}>
               <div className="delivery-heading">
                 <span className="supplier-icon">
                   <Truck size={20} />
                 </span>
-                <h3>{s.name}</h3>
+                <h3>{s.furnizor}</h3>
                 <StatusBadge value="În așteptare" />
               </div>
               <p>
                 <CalendarDays size={15} />
-                {s.date}
+                {dateLabel(s.data)}
               </p>
-              <div className="delivery-flowers">{s.flowers}</div>
-              <small>
-                <span className="online-dot" />
-                {s.waiting} comenzi așteaptă această livrare
-              </small>
+              <div className="delivery-flowers">{s.cantitate_fire} {flowerLabel(s.floare)}</div>
+
             </motion.article>
           ))}
         </div>

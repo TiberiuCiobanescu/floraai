@@ -14,12 +14,12 @@ import { orderObservations } from "./order-observations";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
-  const { orders, messages, stock, limits, updateOrder, updateMessage } = useFlorist();
+  const { orders, messages, stock, limits, catalog, updateOrder, updateMessage } = useFlorist();
   const original = orders.find((o) => o.id === id);
   const [draft, setDraft] = useState<Order | undefined>(original);
   const [notice, setNotice] = useState("");
   const [question, setQuestion] = useState(() =>
-    original ? recommendedClientQuestions(original, messages)[0] ?? "" : "",
+    original ? original.question || recommendedClientQuestions(original, messages)[0] || "" : "",
   );
   if (!draft)
     return (
@@ -43,37 +43,39 @@ export function OrderDetail({ id }: { id: string }) {
     setDraft((prev) => (prev ? { ...prev, [key]: value } : prev));
     setNotice("");
   }
-  function save(status = order.status) {
+  async function save(status = order.status) {
     const next = {
       ...order,
       status,
+      question,
       versions: [
         ...order.versions,
-        `v${order.versions.length + 1} · 14 nov., 12:00 · ${textEquals(status, "Confirmată") ? "Comandă confirmată" : "Detalii actualizate"}`,
+        `v${order.versions.length + 1} · 14 nov., 10:05 · ${textEquals(status, "Confirmată") ? "Comandă confirmată" : "Detalii actualizate"}`,
       ],
     };
-    updateOrder(next);
+    if (!(await updateOrder(next))) return false;
     setDraft(next);
     setNotice("Modificările au fost salvate.");
+    return true;
   }
-  function confirm() {
+  async function confirm() {
     if (missing.length || missingProduct) {
       setNotice("Completează câmpurile lipsă înainte de confirmare.");
       return;
     }
-    save("Confirmată");
-    updateMessage(id, "Confirmat");
+    if (!(await save("Confirmată"))) return;
+    await updateMessage(id, "Confirmat");
     setNotice("Comanda a fost confirmată.");
     toast.success("Comanda a fost confirmată.");
   }
-  function sendQuestion(text: string) {
+  async function sendQuestion(text: string) {
     if (!normalizeText(text) || /\[[^\]]+\]/.test(text)) {
       setNotice("Completează modelul de mesaj înainte de trimitere.");
       toast.error("Completează modelul de mesaj înainte de trimitere.");
       return;
     }
-    save("Așteaptă clientul");
-    updateMessage(id, "Așteaptă clientul");
+    if (!(await save("Așteaptă clientul"))) return;
+    await updateMessage(id, "Așteaptă clientul");
     setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
     toast.success("Simulare: întrebarea a fost trimisă pe WhatsApp.");
   }
@@ -114,7 +116,7 @@ export function OrderDetail({ id }: { id: string }) {
               </span>
               <div>
                 <strong>{message?.client ?? order.client}</strong>
-                <small>14 noiembrie · {message?.time ?? "12:00"}</small>
+                <small>14 noiembrie · {message?.time ?? "—"}</small>
               </div>
             </div>
             <blockquote>{message?.text ?? "Comandă introdusă în atelier."}</blockquote>
@@ -128,7 +130,7 @@ export function OrderDetail({ id }: { id: string }) {
                   <strong>Termenul de modificare a trecut</strong>
                   <small>
                     {dateLabel(deadline.toISOString().slice(0, 10))} la{" "}
-                    {deadline.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                    {deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" })}
                   </small>
                 </div>
               </AlertBand>
@@ -140,7 +142,7 @@ export function OrderDetail({ id }: { id: string }) {
                   : dateLabel(deadline.toISOString().slice(0, 10))}{" "}
                 la{" "}
                 <strong>
-                  {deadline.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+                  {deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" })}
                 </strong>
                 .
               </p>
@@ -207,11 +209,13 @@ export function OrderDetail({ id }: { id: string }) {
             </label>
             <div className={`field full-width ${missingProduct ? "missing-field" : ""}`}>
               Produse{missingProduct && <span className="text-destructive">lipsește</span>}
+              <datalist id="catalog-produse">{catalog.map((product) => <option key={product.id} value={product.nume} />)}</datalist>
               {order.products.map((p, i) => (
                 <div className="product-input-row" key={i}>
                   <input
                     aria-label={`Produs ${i + 1}`}
                     placeholder="Nume produs"
+                    list="catalog-produse"
                     value={p.name}
                     onChange={(e) =>
                       change(
@@ -369,9 +373,9 @@ export function OrderDetail({ id }: { id: string }) {
           <div className="detail-actions">
             <Button
               variant="outline"
-              onClick={() => {
-                save("Așteaptă clientul");
-                updateMessage(id, "Așteaptă clientul");
+              onClick={async () => {
+                if (!(await save("Așteaptă clientul"))) return;
+                await updateMessage(id, "Așteaptă clientul");
                 setNotice("Simulare: rezumatul a fost trimis spre confirmare.");
               }}
             >
