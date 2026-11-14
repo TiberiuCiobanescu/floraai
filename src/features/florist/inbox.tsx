@@ -1,5 +1,5 @@
 import { forwardRef, useMemo, useState, type ReactNode } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   Upload,
   Plus,
@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useFlorist } from "./store";
-import { isOverdue, type Order } from "./data";
+import { isOverdue } from "./data";
 import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
 import { normalizeText, textEquals, textIncludes } from "@/lib/normalize-text";
 import { motion, useReducedMotion } from "framer-motion";
@@ -23,7 +23,7 @@ import { AnimatedCount, useEntrance } from "./motion";
 import { toast } from "sonner";
 import { newestMessagesFirst } from "./message-order";
 const MessageLink = forwardRef<HTMLAnchorElement, { orderId: string; className: string; children: ReactNode }>(
-  ({ orderId, ...props }, ref) => <Link ref={ref} to="/comenzi/$id" params={{ id: orderId }} {...props} />,
+  ({ orderId, ...props }, ref) => orderId ? <Link ref={ref} to="/comenzi/$id" params={{ id: orderId }} {...props} /> : <a ref={ref} {...props} aria-disabled="true" />,
 );
 const MotionLink = motion.create(MessageLink);
 export function InboxPage() {
@@ -37,7 +37,6 @@ export function InboxPage() {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
   const [source, setSource] = useState<"Fizic" | "Telefon">("Fizic");
-  const navigate = useNavigate();
   const fresh = messages.filter((m) => textEquals(m.status, "Nou")).length;
   const waiting = messages.filter((m) => textEquals(m.status, "Așteaptă clientul")).length;
   const overdue = messages.filter(isOverdue).length;
@@ -64,7 +63,7 @@ export function InboxPage() {
         description="Toate mesajele clienților, într-un singur loc."
         actions={
           <>
-            <Button variant="outline" onClick={() => {}}>
+            <Button variant="outline" onClick={() => toast.error("Importul WhatsApp nu este încă conectat. Nu s-au adăugat mesaje.")}>
               <Upload />
               Încarcă chat WhatsApp (.txt)
             </Button>

@@ -5,6 +5,7 @@ import { mapFloristRows, type FloristRows, technicalValue, orderStatusLabels, or
 import { modificationDeadline, type Order, type OrderType } from "./data";
 import { z } from "zod";
 import { textEquals } from "@/lib/normalize-text";
+import { assertOrderEditable } from "./order-safety";
 
 // Use the team's existing anon policies, never the service-role key.
 function databaseClient() {
@@ -77,6 +78,8 @@ export const saveFloristOrder = createServerFn({ method: "POST" }).inputValidato
   const deadline = modificationDeadline(data as Order, limits);
   const { data: current, error: readError } = await client.from("comenzi").select("versiune,status").eq("id", data.id).single();
   if (readError || !current) throw new Error("Comanda nu a putut fi citită.");
+  assertOrderEditable(current.status);
+  if (data.version !== undefined && data.version !== current.versiune) throw new Error("Comanda a fost modificată între timp. Reîncarcă datele înainte de salvare.");
   const { data: existingClient, error: clientReadError } = await client.from("clienti").select("tip").eq("telefon", data.phone).maybeSingle();
   if (clientReadError || !existingClient) throw new Error("Selectează un client existent înainte de salvare.");
   const { error: clientError } = await client.from("clienti").update({ nume: data.client, adresa: data.address }).eq("telefon", data.phone);
@@ -104,7 +107,11 @@ export const saveFloristOrder = createServerFn({ method: "POST" }).inputValidato
   return { saved: true };
 });
 export const saveMessageStatus = createServerFn({ method: "POST" }).inputValidator(z.object({ orderId: z.string(), status: z.string() })).handler(async ({ data }) => {
-  const { error } = await databaseClient().from("mesaje").update({ status: technicalValue(messageStatusLabels, data.status) }).eq("comanda_id", data.orderId);
+  const client = databaseClient();
+  const { data: order, error: orderError } = await client.from("comenzi").select("status").eq("id", data.orderId).single();
+  if (orderError || !order) throw new Error("Comanda mesajelor nu a putut fi citită.");
+  assertOrderEditable(order.status);
+  const { error } = await client.from("mesaje").update({ status: technicalValue(messageStatusLabels, data.status) }).eq("comanda_id", data.orderId).in("status", ["nou", "asteapta_client"]);
   if (error) throw new Error("Statusul mesajelor nu a putut fi salvat.");
   return { saved: true };
 });

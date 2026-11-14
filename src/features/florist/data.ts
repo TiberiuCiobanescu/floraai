@@ -64,10 +64,15 @@ export function isLowStock(item: { quantity: number; threshold: number }) {
   return item.quantity <= item.threshold;
 }
 export function dateLabel(date: string) {
+  if (!date || !Number.isFinite(new Date(`${date}T12:00:00`).getTime())) return "—";
   return new Date(`${date}T12:00:00`).toLocaleDateString("ro-RO", {
     day: "numeric",
     month: "short",
   });
+}
+export function deadlineDateKey(deadline: Date) {
+  if (!Number.isFinite(deadline.getTime())) return "";
+  return deadline.toLocaleDateString("sv-SE", { timeZone: "Europe/Bucharest" });
 }
 export function productSummary(order: Order) {
   return order.products.map((p) => `${p.quantity} ${p.name}`).join(", ");

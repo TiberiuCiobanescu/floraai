@@ -69,7 +69,7 @@ export function SettingsPage() {
         <div className="settings-intro">
           <Sprout size={22} />
           <h2>Praguri de stoc</h2>
-          <p>O alertă apare când stocul scade sub prag.</p>
+          <p>O alertă apare când stocul este egal cu pragul sau sub el.</p>
         </div>
         <div className="settings-fields">
           {draftStock.map((s, i) => (

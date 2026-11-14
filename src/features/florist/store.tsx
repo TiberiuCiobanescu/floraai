@@ -21,8 +21,8 @@ function useFloristState() {
     catch (error) { toast.error(error instanceof Error ? error.message : "Comanda nu a fost salvată."); return false; }
   }
   async function updateMessage(orderId: string, status: string) {
-    await saveStatus({ data: { orderId, status } });
-    await refresh();
+    try { await saveStatus({ data: { orderId, status } }); await refresh(); return true; }
+    catch (error) { toast.error(error instanceof Error ? error.message : "Statusul mesajului nu a fost salvat."); return false; }
   }
   async function saveSettings(stock: typeof data.stock, limits: typeof data.limits) {
     await saveSettingsFn({ data: { stock, limits } });

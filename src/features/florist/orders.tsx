@@ -4,7 +4,7 @@ import { Check, Search, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeading, StatusBadge } from "./shared";
 import { useFlorist } from "./store";
-import { dateLabel, productSummary, modificationDeadline, canMarkExecuted, DEMO_NOW } from "./data";
+import { dateLabel, deadlineDateKey, productSummary, modificationDeadline, canMarkExecuted, DEMO_NOW } from "./data";
 import { textEquals, textIncludes } from "@/lib/normalize-text";
 import { motion, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
@@ -106,9 +106,9 @@ export function OrdersPage() {
                     <StatusBadge value={o.status} />
                   </td>
                   <td className={deadline < DEMO_NOW ? "expired-text" : ""}>
-                    {dateLabel(deadline.toISOString().slice(0, 10))}
+                    {dateLabel(deadlineDateKey(deadline))}
                     <small>
-                      {deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" })}
+                      {Number.isFinite(deadline.getTime()) ? deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" }) : "Livrare necompletată"}
                       {deadline < DEMO_NOW ? " · Expirat" : ""}
                     </small>
                   </td>

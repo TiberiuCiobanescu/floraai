@@ -1,4 +1,5 @@
 # FloraAI
+- [x] Verificarea tuturor paginilor și acțiunilor pentru date reale, câmpuri necompletate și păstrarea comenzilor încheiate; eroarea de afișare nu se mai reproduce pe cele șase pagini sau la navigare.
 - [x] Înlocuirea completă a datelor mock cu tabelele conectate, verificarea stocului cu 11 flori / 75 fire de trandafir roșu și documentarea tabelelor pe ecran.
 - [x] Conectarea salvării setărilor și comenzilor la tabelele existente; salvarea setărilor verificată cu reîncărcare și restabilirea valorilor inițiale.
 - [ ] Execuție atomică cu scădere de stoc: necesită aprobarea unei funcții tranzacționale în baza echipei; nu există funcții și tabelele nu trebuie modificate. Butonul nu simulează succesul.

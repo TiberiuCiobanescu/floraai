@@ -4,13 +4,14 @@ import { ArrowLeft, Check, Send, Plus, Trash2, Save, History, MessageCircle } fr
 import { Button } from "@/components/ui/button";
 import { useFlorist } from "./store";
 import { PageHeading, StatusBadge, Channel, AlertBand } from "./shared";
-import { modificationDeadline, DEMO_NOW, dateLabel, type Order } from "./data";
+import { modificationDeadline, DEMO_NOW, dateLabel, deadlineDateKey, type Order } from "./data";
 import { normalizeText, textEquals } from "@/lib/normalize-text";
 import { toast } from "sonner";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEntrance } from "./motion";
 import { clientQuestionOptions, recommendedClientQuestions } from "./client-questions";
 import { orderObservations } from "./order-observations";
+import { changeProductName } from "./order-safety";
 export function OrderDetail({ id }: { id: string }) {
   const entrance = useEntrance();
   const reduced = useReducedMotion();
@@ -29,6 +30,7 @@ export function OrderDetail({ id }: { id: string }) {
       </>
     );
   const order = draft;
+  const settled = textEquals(order.status, "Executată") || textEquals(order.status, "Livrată");
   const observations = orderObservations(order, stock, limits, DEMO_NOW, messages);
   const recommendations = clientQuestionOptions(order, messages);
   const message = messages.find((m) => m.orderId === id);
@@ -44,6 +46,7 @@ export function OrderDetail({ id }: { id: string }) {
     setNotice("");
   }
   async function save(status = order.status) {
+    if (settled) return false;
     const next = {
       ...order,
       status,
@@ -54,7 +57,7 @@ export function OrderDetail({ id }: { id: string }) {
       ],
     };
     if (!(await updateOrder(next))) return false;
-    setDraft(next);
+    setDraft({ ...next, version: (order.version ?? 1) + 1, versions: [`v${(order.version ?? 1) + 1}`] });
     setNotice("Modificările au fost salvate.");
     return true;
   }
@@ -64,7 +67,7 @@ export function OrderDetail({ id }: { id: string }) {
       return;
     }
     if (!(await save("Confirmată"))) return;
-    await updateMessage(id, "Confirmat");
+    if (!(await updateMessage(id, "Confirmat"))) return;
     setNotice("Comanda a fost confirmată.");
     toast.success("Comanda a fost confirmată.");
   }
@@ -75,7 +78,7 @@ export function OrderDetail({ id }: { id: string }) {
       return;
     }
     if (!(await save("Așteaptă clientul"))) return;
-    await updateMessage(id, "Așteaptă clientul");
+    if (!(await updateMessage(id, "Așteaptă clientul"))) return;
     setNotice("Simulare: întrebarea a fost trimisă pe WhatsApp.");
     toast.success("Simulare: întrebarea a fost trimisă pe WhatsApp.");
   }
@@ -92,7 +95,7 @@ export function OrderDetail({ id }: { id: string }) {
         actions={
           <>
             <StatusBadge value={order.status} />
-            <Button variant="outline" onClick={() => save()}>
+            <Button variant="outline" disabled={settled} onClick={() => save()}>
               <Save />
               Salvează
             </Button>
@@ -116,20 +119,20 @@ export function OrderDetail({ id }: { id: string }) {
               </span>
               <div>
                 <strong>{message?.client ?? order.client}</strong>
-                <small>14 noiembrie · {message?.time ?? "—"}</small>
+                <small>{message ? `${dateLabel(message.received.slice(0, 10))} · ${message.time}` : "—"}</small>
               </div>
             </div>
-            <blockquote>{message?.text ?? "Comandă introdusă în atelier."}</blockquote>
-            <Channel value={message?.channel ?? "Fizic"} />
+            <blockquote>{message?.text ?? "Nu există un mesaj asociat acestei comenzi."}</blockquote>
+            {message && <Channel value={message.channel} />}
           </motion.article>
           <div className="deadline-block">
             <h3>Termen de modificare</h3>
-            {expired ? (
+            {!Number.isFinite(deadline.getTime()) ? <p>Completează data și intervalul livrării.</p> : expired ? (
               <AlertBand tone="amber">
                 <div>
                   <strong>Termenul de modificare a trecut</strong>
                   <small>
-                    {dateLabel(deadline.toISOString().slice(0, 10))} la{" "}
+                    {dateLabel(deadlineDateKey(deadline))} la{" "}
                     {deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" })}
                   </small>
                 </div>
@@ -137,9 +140,9 @@ export function OrderDetail({ id }: { id: string }) {
             ) : (
               <p>
                 Modificări posibile până{" "}
-                {deadline.toDateString() === DEMO_NOW.toDateString()
+                {deadlineDateKey(deadline) === deadlineDateKey(DEMO_NOW)
                   ? "azi"
-                  : dateLabel(deadline.toISOString().slice(0, 10))}{" "}
+                  : dateLabel(deadlineDateKey(deadline))}{" "}
                 la{" "}
                 <strong>
                   {deadline.toLocaleTimeString("ro-RO", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit" })}
@@ -182,7 +185,7 @@ export function OrderDetail({ id }: { id: string }) {
                 : "Toate detaliile sunt completate"}
             </span>
           </div>
-          <div className="form-grid">
+          <fieldset disabled={settled} className="form-grid">
             {(
               [
                 { key: "client", label: "Client" },
@@ -221,7 +224,7 @@ export function OrderDetail({ id }: { id: string }) {
                       change(
                         "products",
                         order.products.map((v, j) =>
-                          i === j ? { ...v, name: e.target.value } : v,
+                          i === j ? changeProductName(v, e.target.value, catalog) : v,
                         ),
                       )
                     }
@@ -323,7 +326,7 @@ export function OrderDetail({ id }: { id: string }) {
                 onChange={(e) => change("note", e.target.value)}
               />
             </label>
-          </div>
+          </fieldset>
           <div className="question-box">
             <h3>Întrebare pentru client</h3>
             <div className="mb-3 flex flex-col items-start gap-2" aria-label="Întrebări recomandate">
@@ -354,11 +357,13 @@ export function OrderDetail({ id }: { id: string }) {
             <textarea
               aria-label="Întrebare pentru client"
               rows={2}
+              disabled={settled}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
             />
             <Button
               variant="outline"
+              disabled={settled}
               onClick={() => sendQuestion(question)}
             >
               <MessageCircle />
@@ -373,16 +378,17 @@ export function OrderDetail({ id }: { id: string }) {
           <div className="detail-actions">
             <Button
               variant="outline"
+              disabled={settled}
               onClick={async () => {
                 if (!(await save("Așteaptă clientul"))) return;
-                await updateMessage(id, "Așteaptă clientul");
+                if (!(await updateMessage(id, "Așteaptă clientul"))) return;
                 setNotice("Simulare: rezumatul a fost trimis spre confirmare.");
               }}
             >
               <Send />
               Trimite rezumatul spre confirmare
             </Button>
-            <Button onClick={confirm}>
+            <Button disabled={settled} onClick={confirm}>
               <Check />
               Marchează confirmată
             </Button>
