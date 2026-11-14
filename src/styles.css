@@ -1574,6 +1574,15 @@ blockquote {
 .story-mid { z-index: -2; opacity: 0.8; }
 .story-front { z-index: -1; }
 .story-front img { object-position: center bottom; }
+.story-hero .story-front img {
+  transform-origin: center bottom;
+  animation: story-flower-breeze 7s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes story-flower-breeze {
+  0%, 100% { transform: translateX(-5px) rotate(-0.6deg); }
+  50% { transform: translateX(5px) rotate(0.6deg); }
+}
 .story-shade { position: absolute; inset: 0; z-index: -2; background: var(--story-shade); pointer-events: none; }
 .story-header { position: absolute; inset: 0 0 auto; padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; z-index: 2; }
 .story-header > span { display: flex; gap: 10px; align-items: center; font-family: var(--font-story); font-size: 30px; }
@@ -1645,5 +1654,6 @@ blockquote {
 }
 @media (prefers-reduced-motion: reduce) {
   .story-layer { inset: 0; }.story-petal { display: none; }
+  .story-hero .story-front img { animation: none; transform: none; will-change: auto; }
   .story-message { transform: none; }.story-message-0 { top: 0; left: 5%; }.story-message-1 { top: 0; left: auto; right: 5%; }.story-message-2 { top: auto; bottom: 0; left: 5%; }.story-message-3 { top: auto; bottom: 0; left: auto; right: 5%; }
 }
